@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Bingo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--green:#00C27A;--green-dark:#009960;--pitch:#0a1f0e;--pitch-mid:#0f2d14;--pitch-light:#1a3d1f;--gold:#FFD700;--red:#ff4455;--white:#f5f9f6;--muted:#8aab90;--card-bg:#111f14;--card-border:#1e3823;--radius:10px;--font-display:'Bebas Neue',sans-serif;--font-body:'DM Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font-body);background:var(--pitch);color:var(--white)}
+.page{display:none;min-height:100vh}.page.active{display:block}
+nav{background:var(--pitch-mid);border-bottom:1px solid var(--card-border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:var(--font-display);font-size:26px;letter-spacing:2px;color:var(--green);cursor:pointer;user-select:none}
+.nav-links{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--card-border);background:transparent;color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s}
+.nav-btn:hover{background:var(--card-border);color:var(--white)}
+.hero{padding:4rem 1.5rem 3rem;text-align:center;background:radial-gradient(ellipse at 50% 0%,#1a3d1f 0%,var(--pitch) 70%)}
+.hero h1{font-family:var(--font-display);font-size:clamp(52px,10vw,96px);letter-spacing:4px;color:var(--white);line-height:1}
+.hero h1 span{color:var(--green)}
+.hero p{color:var(--muted);font-size:16px;margin:1rem 0 2rem;max-width:480px;margin-inline:auto}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{padding:12px 24px;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green-dark);transform:translateY(-1px)}
+.btn-secondary{background:var(--card-bg);border:1px solid var(--card-border);color:var(--white)}.btn-secondary:hover{border-color:var(--green);color:var(--green)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{opacity:.85}
+.btn-gold{background:var(--gold);color:#1a1000;font-weight:700}.btn-gold:hover{background:#ffe033}
+.btn-sm{padding:7px 14px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+.container-wide{max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:1.5rem}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+input[type=text],input[type=password],textarea,select{width:100%;background:var(--pitch);border:1px solid var(--card-border);color:var(--white);padding:10px 14px;border-radius:8px;font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--green)}
+.form-row{margin-bottom:1.25rem}
+.form-hint{font-size:12px;color:var(--muted);margin-top:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-green{background:#00c27a22;color:var(--green)}
+.badge-gold{background:#ffd70022;color:var(--gold)}
+.badge-red{background:#ff445522;color:var(--red)}
+.badge-gray{background:#ffffff11;color:var(--muted)}
+.divider{border:none;border-top:1px solid var(--card-border);margin:1.5rem 0}
+.section-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;font-weight:600}
+.text-center{text-align:center}.text-muted{color:var(--muted)}
+.mb-1{margin-bottom:.5rem}.mb-2{margin-bottom:1rem}.mt-1{margin-top:.5rem}.mt-2{margin-top:1rem}.w-full{width:100%}
+/* room code display */
+.room-code{font-family:var(--font-display);font-size:72px;letter-spacing:12px;color:var(--green);text-align:center;padding:1.5rem 0}
+/* lobby player list */
+.lobby-players{display:flex;flex-direction:column;gap:8px;margin:1rem 0}
+.lobby-player{display:flex;align-items:center;gap:10px;background:var(--pitch-light);border:1px solid var(--card-border);border-radius:8px;padding:10px 14px}
+.lobby-player-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.lobby-player-name{font-weight:600;font-size:15px}
+.lobby-player-badge{margin-left:auto}
+/* bingo board */
+.bingo-board-outer{overflow-x:auto}
+.bingo-board{display:grid;gap:8px;min-width:300px}
+
+/* Base cell — icon-first centered design */
+.bingo-cell{
+  background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;
+  padding:12px 8px 10px;min-height:110px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;cursor:pointer;transition:all .15s;position:relative;user-select:none;
+  text-align:center;
+}
+.bingo-cell:hover:not(.locked){border-color:var(--green);transform:translateY(-1px)}
+/* Placeable: pulse when a player is waiting to be placed */
+.bingo-cell.placeable{border-color:var(--green);border-width:2px;animation:pulse-cell 1.5s ease-in-out infinite}
+@keyframes pulse-cell{0%,100%{box-shadow:0 0 0 0 #00c27a33}50%{box-shadow:0 0 0 8px #00c27a00}}
+.bingo-cell.placed-flash{animation:flash-placed .4s ease}
+@keyframes flash-placed{0%{background:#00c27a44}100%{background:#00c27a0d}}
+.bingo-cell.locked{border-color:var(--green);background:#00c27a0d;cursor:default}
+.bingo-cell.correct{border-color:var(--green)!important;background:#00c27a22!important}
+.bingo-cell.wrong{border-color:var(--red)!important;background:#ff445511!important}
+
+/* Cell inner elements */
+.cell-icon{font-size:32px;line-height:1;margin-bottom:2px;display:block}
+.cell-badge{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;letter-spacing:-0.5px;
+  margin-bottom:2px;flex-shrink:0;
+}
+.cell-label{font-size:13px;font-weight:600;color:var(--white);line-height:1.3;max-width:100%}
+.cell-sublabel{font-size:10px;color:var(--muted);font-weight:400}
+.cell-player{font-size:11px;color:var(--green);font-weight:600;margin-top:2px}
+.cell-result-icon{position:absolute;top:6px;right:6px;font-size:18px}
+.cell-empty-hint{font-size:10px;color:var(--card-border);font-style:italic;margin-top:2px}
+/* player reveal card */
+.player-reveal{background:var(--card-bg);border:2px solid var(--green);border-radius:16px;padding:2rem;text-align:center;margin-bottom:1.5rem;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+.player-reveal-name{font-family:var(--font-display);font-size:42px;letter-spacing:2px;color:var(--white)}
+.player-reveal-meta{color:var(--muted);font-size:14px;margin-top:6px}
+.player-reveal-facts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:1rem}
+/* progress */
+.progress-bar{height:4px;background:var(--card-border);border-radius:2px;margin-bottom:2rem;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease}
+/* status bar */
+.status-bar{background:var(--pitch-mid);border:1px solid var(--card-border);border-radius:8px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px}
+.status-bar-stat{font-size:13px;color:var(--muted)}.status-bar-stat strong{color:var(--white)}
+/* timer */
+.timer-wrap{margin-bottom:1.5rem}
+.timer-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.timer-secs{font-family:var(--font-display);font-size:28px;color:var(--white)}
+.timer-secs.warning{color:var(--gold)}.timer-secs.danger{color:var(--red)}
+.timer-bar{height:8px;background:var(--card-border);border-radius:4px;overflow:hidden}
+.timer-fill{height:100%;border-radius:4px;transition:width 1s linear,background .5s}
+/* results */
+.results-header{text-align:center;padding:2rem 0}
+.results-header h2{font-family:var(--font-display);font-size:52px;color:var(--gold);letter-spacing:3px}
+.score-big{font-family:var(--font-display);font-size:72px;color:var(--green);line-height:1}
+.leaderboard{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden}
+.leaderboard-row{display:flex;align-items:center;padding:14px 20px;gap:16px;border-bottom:1px solid var(--card-border)}
+.leaderboard-row:last-child{border-bottom:none}
+.leaderboard-rank{font-family:var(--font-display);font-size:24px;color:var(--muted);width:36px}
+.leaderboard-rank.gold{color:var(--gold)}
+.leaderboard-name{flex:1;font-weight:600;font-size:15px}
+.leaderboard-score{font-family:var(--font-display);font-size:22px;color:var(--green)}
+/* admin */
+.admin-section{margin-bottom:2rem}
+.admin-section h2{font-family:var(--font-display);font-size:20px;letter-spacing:1px;color:var(--muted);margin-bottom:1rem;text-transform:uppercase}
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid var(--card-border)}
+.tab-btn{padding:8px 16px;background:none;border:none;color:var(--muted);font-family:var(--font-body);font-size:14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tag{display:flex;align-items:center;gap:6px;background:var(--pitch-light);border:1px solid var(--card-border);border-radius:6px;padding:5px 10px;font-size:13px}
+.tag-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:0}
+.tag-remove:hover{color:var(--red)}
+/* player db list */
+.db-list{max-height:400px;overflow-y:auto;border:1px solid var(--card-border);border-radius:8px}
+.db-list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--card-border);gap:8px}
+.db-list-item:last-child{border-bottom:none}
+.db-list-item:hover{background:var(--pitch-light)}
+.db-item-name{font-size:14px;font-weight:500}
+.db-item-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.db-search-wrap{position:relative;margin-bottom:8px}
+.db-results{position:absolute;top:100%;left:0;right:0;background:var(--pitch-mid);border:1px solid var(--card-border);border-radius:8px;z-index:200;max-height:260px;overflow-y:auto;margin-top:4px;display:none}
+.db-result-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--card-border);transition:background .1s}
+.db-result-item:last-child{border-bottom:none}
+.db-result-item:hover{background:var(--pitch-light)}
+.db-result-name{font-size:14px;font-weight:500}
+.db-result-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.cat-builder{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end;margin-bottom:8px}
+@media(max-width:600px){.cat-builder{grid-template-columns:1fr}}
+/* bulk import preview */
+.preview-card{background:var(--pitch);border:1px solid var(--card-border);border-radius:8px;padding:10px 14px;margin-bottom:6px;font-size:13px}
+.preview-card.ok{border-left:3px solid var(--green)}
+.preview-card.warn{border-left:3px solid var(--gold)}
+.preview-card.skip{border-left:3px solid var(--muted);opacity:.6}
+.preview-card.err{border-left:3px solid var(--red)}
+.preview-name{font-weight:600;margin-bottom:3px}
+.preview-meta{color:var(--muted);font-size:12px}
+.preview-issues{color:var(--gold);font-size:12px;margin-top:3px}
+.preview-err{color:var(--red);font-size:12px;margin-top:3px}
+.bulk-summary-stat{display:inline-flex;align-items:center;gap:5px;margin-right:12px;font-size:13px}
+/* loading */
+#loading-overlay{position:fixed;inset:0;background:var(--pitch);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:1rem}
+#loading-overlay.hidden{display:none}
+.spinner{width:40px;height:40px;border:3px solid var(--card-border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* toast */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--green);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;transition:transform .3s ease;z-index:9999;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.error{background:var(--red)}
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:500;padding:1rem}
+.modal-overlay.hidden{display:none}
+.modal-box{background:var(--pitch-mid);border:1px solid var(--card-border);border-radius:16px;padding:2rem;max-width:520px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-box h3{font-family:var(--font-display);font-size:24px;color:var(--green);margin-bottom:1rem}
+/* wrap for join/create */
+.center-wrap{max-width:440px;margin:3rem auto;padding:0 1rem}
+.center-wrap .card h2{font-family:var(--font-display);font-size:32px;letter-spacing:2px;color:var(--green);margin-bottom:1.5rem;text-align:center}
+</style>
+</head>
+<body>
+<div id="loading-overlay"><div class="spinner"></div><div style="color:var(--muted);font-size:14px">Connecting...</div></div>
+<div id="toast"></div>
+<nav>
+  <div class="nav-logo" id="nav-logo" onclick="secretAdminTap()">⚽ BINGO</div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="goHome()">Home</button>
+  </div>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h1>FOOTBALL<br><span>BINGO</span></h1>
+    <p>Create a room, invite your friends, and test your football knowledge.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" style="font-size:16px;padding:14px 32px" onclick="showPage('create')">🏟️ Create Game</button>
+      <button class="btn btn-secondary" style="font-size:16px;padding:14px 32px" onclick="showPage('join')">🔑 Join Game</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="grid-3">
+      <div class="card text-center"><div style="font-size:32px;margin-bottom:.5rem">🏟️</div><div style="font-weight:600;margin-bottom:4px">Create a Room</div><div class="text-muted" style="font-size:13px">Set the rules and share your room code with friends</div></div>
+      <div class="card text-center"><div style="font-size:32px;margin-bottom:.5rem">🧠</div><div style="font-weight:600;margin-bottom:4px">Strategize</div><div class="text-muted" style="font-size:13px">Players fit multiple categories — choose wisely. Some are traps!</div></div>
+      <div class="card text-center"><div style="font-size:32px;margin-bottom:.5rem">🥇</div><div style="font-weight:600;margin-bottom:4px">Score</div><div class="text-muted" style="font-size:13px">Board fills — scores revealed at the end</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CREATE GAME ══ -->
+<div class="page" id="page-create">
+  <div class="center-wrap">
+    <div class="card">
+      <h2>CREATE ROOM</h2>
+      <div class="form-row"><label>Your Name</label><input type="text" id="create-name" placeholder="Enter your name..." maxlength="20"></div>
+      <div class="form-row"><label>Board Size</label>
+        <select id="create-size">
+          <option value="9">3×3 — 9 squares</option>
+          <option value="12">3×4 — 12 squares</option>
+          <option value="16" selected>4×4 — 16 squares</option>
+          <option value="25">5×5 — 25 squares</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Timer Per Player</label>
+        <select id="create-timer">
+          <option value="0">No timer</option>
+          <option value="60">60 seconds</option>
+          <option value="90" selected>90 seconds</option>
+          <option value="120">120 seconds</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-full" style="font-size:15px" onclick="createRoom()">Create Room →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ JOIN GAME ══ -->
+<div class="page" id="page-join">
+  <div class="center-wrap">
+    <div class="card">
+      <h2>JOIN GAME</h2>
+      <div class="form-row"><label>Your Name <span style="color:var(--muted)">(optional)</span></label><input type="text" id="join-name" placeholder="Leave blank for a random name..." maxlength="20"></div>
+      <div class="form-row"><label>Room Code</label><input type="text" id="join-code" placeholder="Enter 4-letter code..." maxlength="4" style="text-transform:uppercase;font-size:22px;letter-spacing:6px;text-align:center" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()"></div>
+      <button class="btn btn-primary w-full" style="font-size:15px" onclick="joinRoom()">Join Room →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOBBY ══ -->
+<div class="page" id="page-lobby">
+  <div class="container" style="max-width:560px">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:.5rem">Room Code</div>
+      <div class="room-code" id="lobby-code">----</div>
+      <div style="font-size:13px;color:var(--muted)">Share this code with your friends</div>
+    </div>
+    <div class="card mb-2" style="margin-bottom:1rem">
+      <div class="section-label">Players in Lobby</div>
+      <div class="lobby-players" id="lobby-players"></div>
+      <div id="lobby-min-msg" style="font-size:13px;color:var(--muted);margin-top:.5rem;display:none">Need at least 2 players to start</div>
+    </div>
+    <div id="lobby-creator-controls" style="display:none">
+      <button class="btn btn-primary w-full" style="font-size:15px" id="lobby-start-btn" onclick="startGameFromLobby()">▶ Start Game</button>
+    </div>
+    <div id="lobby-waiting-msg" style="text-align:center;color:var(--muted);font-size:14px;padding:1rem 0;display:none">Waiting for the room creator to start the game...</div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div class="page" id="page-game">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem">
+      <div>
+        <div class="text-muted" style="font-size:13px" id="game-title-display">Football Bingo</div>
+        <div style="font-size:18px;font-weight:600" id="game-player-display">Player: —</div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="status-bar">
+      <div class="status-bar-stat">Pool: <strong id="stat-pool">0</strong> left</div>
+      <div class="status-bar-stat">Board: <strong id="stat-filled">0</strong>/<strong id="stat-total">0</strong></div>
+      <div class="status-bar-stat">Skipped: <strong id="stat-skipped">0</strong></div>
+    </div>
+    <div id="current-player-wrap" style="display:none">
+      <div class="timer-wrap" id="timer-wrap" style="display:none">
+        <div class="timer-label"><span style="font-size:13px;color:var(--muted)">Time remaining</span><span class="timer-secs" id="timer-secs">90</span></div>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%;background:var(--green)"></div></div>
+      </div>
+      <!-- Simplified player card — name only, tap a board cell to place -->
+      <div class="player-reveal">
+        <div class="player-reveal-name" id="reveal-name"></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:.75rem">👇 Tap a category below to place this player, or skip</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-secondary" onclick="skipPlayer()">⏭ Skip</button>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem">
+      <div class="section-label" id="board-label">Your Board — tap a square to place</div>
+      <div class="bingo-board-outer"><div class="bingo-board" id="bingo-board"></div></div>
+    </div>
+    <div id="game-over-msg" style="display:none" class="card text-center mt-2">
+      <div style="font-size:32px;margin-bottom:.5rem">⏳</div>
+      <div style="font-weight:600;font-size:18px">Finished!</div>
+      <div class="text-muted mt-2" style="font-size:14px">Calculating scores...</div>
+    </div>
+    <div id="game-results" style="display:none">
+      <div class="results-header"><h2>RESULTS</h2><p class="text-muted">Here's how you did</p></div>
+      <div class="card text-center mb-2" style="margin-bottom:1rem">
+        <div class="text-muted mb-1" style="font-size:13px">Your Score</div>
+        <div class="score-big" id="your-score">0</div>
+        <div class="text-muted" style="font-size:14px" id="your-score-sub"></div>
+      </div>
+      <div class="section-label">Leaderboard</div>
+      <div class="leaderboard" id="results-leaderboard"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUPER ADMIN ══ -->
+<div class="page" id="page-admin-login">
+  <div class="center-wrap">
+    <div class="card">
+      <h2>ADMIN</h2>
+      <div class="form-row"><label>Password</label><input type="password" id="admin-pw" placeholder="Enter admin password..." onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <button class="btn btn-primary w-full" onclick="adminLogin()">Enter Admin →</button>
+      <div class="text-muted mt-2" style="font-size:12px;text-align:center">Default: <strong>admin123</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-admin">
+  <div class="container-wide">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+      <div><h1 style="font-family:var(--font-display);font-size:36px;letter-spacing:2px">SUPER ADMIN</h1><div class="text-muted" style="font-size:13px">Manage global player database and categories</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="saveAdminConfig()">💾 Save All</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('players')">👥 Player Database</button>
+      <button class="tab-btn" onclick="switchAdminTab('cats')">🗂️ Categories</button>
+      <button class="tab-btn" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+    </div>
+    <!-- TAB: PLAYERS -->
+    <div class="tab-panel active" id="atab-players">
+      <div class="card mb-2" style="margin-bottom:1rem">
+        <div class="section-label">Add Player from Database</div>
+        <div class="db-search-wrap">
+          <input type="text" id="db-search" placeholder="Search by name, club, or nationality..." oninput="searchDB(this.value)">
+          <div class="db-results" id="db-results"></div>
+        </div>
+        <div class="form-hint">Search to add players. Or add a custom player below.</div>
+        <hr class="divider">
+        <div class="section-label">Add Custom Player</div>
+        <div class="grid-2">
+          <div class="form-row"><label>Name</label><input type="text" id="custom-name" placeholder="e.g. Thierry Henry"></div>
+          <div class="form-row"><label>Nationality</label><input type="text" id="custom-nation" placeholder="e.g. France"></div>
+          <div class="form-row"><label>Clubs (comma separated)</label><input type="text" id="custom-clubs" placeholder="e.g. Arsenal, Barcelona"></div>
+          <div class="form-row"><label>Position</label>
+            <select id="custom-pos"><option value="FW">FW</option><option value="MF">MF</option><option value="DF">DF</option><option value="GK">GK</option></select>
+          </div>
+          <div class="form-row"><label>Ballon d'Or wins</label><input type="text" id="custom-bd" placeholder="0"></div>
+          <div class="form-row"><label>Golden Boot wins</label><input type="text" id="custom-gb" placeholder="0"></div>
+          <div class="form-row"><label>World Cup wins</label><input type="text" id="custom-wc" placeholder="0"></div>
+          <div class="form-row"><label>Champions League wins</label><input type="text" id="custom-ucl" placeholder="0"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addCustomPlayer()">+ Add Custom Player</button>
+        <hr class="divider">
+        <div class="section-label">Bulk Import via JSON</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem">Paste a JSON array, preview it, then import. Duplicates and issues are flagged before anything is saved.</p>
+        <div style="background:var(--pitch);border:1px solid var(--card-border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--muted);margin-bottom:.75rem;font-family:monospace;line-height:1.7">
+          [{"name":"Riyad Mahrez","nation":"Algeria","clubs":["Leicester","Manchester City"],"pos":"FW","ballondor":0,"goldboot":0,"worldcup":0,"ucl":1}]
+        </div>
+        <div class="form-row">
+          <textarea id="bulk-json" placeholder="Paste JSON array here..." style="min-height:120px;font-size:12px;font-family:monospace" oninput="clearBulkPreview()"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="previewBulkImport()">🔍 Preview</button>
+          <button class="btn btn-primary btn-sm" id="bulk-confirm-btn" onclick="confirmBulkImport()" style="display:none">✅ Confirm Import</button>
+          <button class="btn btn-secondary btn-sm" id="bulk-cancel-btn" onclick="clearBulkPreview()" style="display:none">✕ Cancel</button>
+        </div>
+        <div id="bulk-preview-wrap" style="display:none">
+          <div id="bulk-summary" style="margin-bottom:1rem"></div>
+          <div id="bulk-preview-list"></div>
+        </div>
+      </div><!-- end add-player card -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+          <div class="section-label" style="margin:0">Active Player Pool (<span id="global-pool-count">0</span> players)</div>
+          <input type="text" id="pool-search" placeholder="Filter list..." oninput="renderGlobalPool()" style="width:200px;padding:6px 10px;font-size:13px">
+        </div>
+        <div class="db-list" id="global-pool-list"></div>
+      </div>
+    </div>
+    <!-- TAB: CATEGORIES -->
+    <div class="tab-panel" id="atab-cats">
+      <!-- Auto-generate card -->
+      <div class="card mb-2" style="margin-bottom:1rem;border-color:#00c27a44">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+          <div>
+            <div class="section-label" style="margin-bottom:4px">Auto-Generate from Player Data</div>
+            <div style="font-size:13px;color:var(--muted)">Scans your entire player pool and creates every valid category that has 5+ matching players and doesn't exist yet.</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">Difficulty is assigned automatically: 11+ players = Easy · 7–10 = Medium · 5–6 = Hard</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="autoGenerateCategories()" id="auto-gen-btn">⚡ Generate All</button>
+        </div>
+        <div id="auto-gen-result" style="font-size:13px;color:var(--green);margin-top:.75rem;display:none"></div>
+      </div>
+      <!-- Manual add card -->
+      <div class="card mb-2" style="margin-bottom:1rem">
+        <div class="section-label">Add Category Manually</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">The value field updates automatically based on type. Difficulty can be overridden after creation.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px">
+          <div>
+            <label>Category Type</label>
+            <select id="cat-type" onchange="updateCatValueControl()">
+              <optgroup label="Basic">
+                <option value="nation">Nationality</option>
+                <option value="club">Played for Club</option>
+              </optgroup>
+              <optgroup label="Derived">
+                <option value="league">Played in League</option>
+              </optgroup>
+              <optgroup label="Trophies">
+                <option value="ballondor">Won Ballon d'Or</option>
+                <option value="goldboot">Won Golden Boot</option>
+                <option value="worldcup">Won World Cup</option>
+                <option value="ucl">Won Champions League</option>
+              </optgroup>
+            </select>
+          </div>
+          <div id="cat-value-wrap">
+            <label id="cat-value-label">Value</label>
+            <select id="cat-value-select" style="display:none"></select>
+            <input type="text" id="cat-value-text" placeholder="Type to filter..." oninput="filterCatValueSelect(this.value)" onfocus="document.getElementById('cat-value-filtered').style.display=''" style="display:none">
+            <div id="cat-value-filtered" style="display:none;max-height:180px;overflow-y:auto;border:1px solid var(--card-border);border-radius:8px;margin-top:4px;background:var(--pitch-mid)"></div>
+          </div>
+          <div>
+            <label>Difficulty <span style="font-size:10px;color:var(--muted)">(auto if blank)</span></label>
+            <select id="cat-difficulty">
+              <option value="auto">Auto</option>
+              <option value="easy">🟢 Easy</option>
+              <option value="medium">🟡 Medium</option>
+              <option value="hard">🔴 Hard</option>
+            </select>
+          </div>
+          <div style="padding-top:22px"><button class="btn btn-primary btn-sm" onclick="addCategory()">+ Add</button></div>
+        </div>
+        <div id="cat-match-preview" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <div class="section-label">Global Categories (<span id="global-cat-count">0</span>)</div>
+        <div class="tag-list" id="global-cat-list"></div>
+      </div>
+    </div>
+    <!-- TAB: SETTINGS -->
+    <div class="tab-panel" id="atab-settings">
+      <div class="card" style="max-width:400px">
+        <div class="section-label">Admin Password</div>
+        <div class="form-row"><input type="text" id="admin-new-pw" placeholder="New password..."></div>
+        <button class="btn btn-secondary btn-sm" onclick="saveAdminConfig()">💾 Save Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ═══════════════════════════════════
+// BUILT-IN PLAYER DATABASE (fallback)
+// ═══════════════════════════════════
+const PLAYER_DB=[
+  {name:"Pelé",nation:"Brazil",clubs:["Santos","New York Cosmos"],ballondor:0,goldboot:0,worldcup:3,ucl:0,pos:"FW"},
+  {name:"Diego Maradona",nation:"Argentina",clubs:["Boca Juniors","Barcelona","Napoli","Sevilla"],ballondor:1,goldboot:0,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Johan Cruyff",nation:"Netherlands",clubs:["Ajax","Barcelona","Feyenoord"],ballondor:3,goldboot:0,worldcup:0,ucl:2,pos:"FW"},
+  {name:"Franz Beckenbauer",nation:"Germany",clubs:["Bayern Munich","New York Cosmos","Hamburg"],ballondor:2,goldboot:0,worldcup:1,ucl:3,pos:"DF"},
+  {name:"Ronaldo Nazário",nation:"Brazil",clubs:["PSV","Barcelona","Inter Milan","Real Madrid","AC Milan"],ballondor:2,goldboot:1,worldcup:2,ucl:0,pos:"FW"},
+  {name:"Zinedine Zidane",nation:"France",clubs:["Cannes","Bordeaux","Juventus","Real Madrid"],ballondor:1,goldboot:0,worldcup:1,ucl:2,pos:"MF"},
+  {name:"Ronaldinho",nation:"Brazil",clubs:["Grêmio","PSG","Barcelona","AC Milan","Flamengo"],ballondor:2,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Lionel Messi",nation:"Argentina",clubs:["Barcelona","PSG","Inter Miami"],ballondor:8,goldboot:6,worldcup:1,ucl:4,pos:"FW"},
+  {name:"Cristiano Ronaldo",nation:"Portugal",clubs:["Sporting CP","Manchester United","Real Madrid","Juventus","Al-Nassr"],ballondor:5,goldboot:4,worldcup:0,ucl:5,pos:"FW"},
+  {name:"Thierry Henry",nation:"France",clubs:["Monaco","Juventus","Arsenal","Barcelona","New York Red Bulls"],ballondor:0,goldboot:2,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Roberto Baggio",nation:"Italy",clubs:["Juventus","AC Milan","Inter Milan","Bologna","Brescia"],ballondor:1,goldboot:0,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Marco van Basten",nation:"Netherlands",clubs:["Ajax","AC Milan"],ballondor:3,goldboot:1,worldcup:0,ucl:2,pos:"FW"},
+  {name:"George Best",nation:"Northern Ireland",clubs:["Manchester United","Hibernian","Fulham"],ballondor:1,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Michel Platini",nation:"France",clubs:["Nancy","St Etienne","Juventus"],ballondor:3,goldboot:1,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Paolo Maldini",nation:"Italy",clubs:["AC Milan"],ballondor:0,goldboot:0,worldcup:0,ucl:5,pos:"DF"},
+  {name:"Franco Baresi",nation:"Italy",clubs:["AC Milan"],ballondor:0,goldboot:0,worldcup:0,ucl:3,pos:"DF"},
+  {name:"Lev Yashin",nation:"Russia",clubs:["Dynamo Moscow"],ballondor:1,goldboot:0,worldcup:0,ucl:0,pos:"GK"},
+  {name:"Bobby Charlton",nation:"England",clubs:["Manchester United","Preston"],ballondor:1,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Eusébio",nation:"Portugal",clubs:["Benfica","New England Tea Men"],ballondor:1,goldboot:2,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Gerd Müller",nation:"Germany",clubs:["Bayern Munich","Fort Lauderdale Strikers"],ballondor:1,goldboot:2,worldcup:1,ucl:3,pos:"FW"},
+  {name:"Romário",nation:"Brazil",clubs:["Vasco","PSV","Barcelona","Valencia","Flamengo"],ballondor:0,goldboot:1,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Rivaldo",nation:"Brazil",clubs:["Deportivo","Valencia","Barcelona","AC Milan"],ballondor:1,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Hristo Stoichkov",nation:"Bulgaria",clubs:["CSKA Sofia","Barcelona","Parma","Al-Nassr"],ballondor:1,goldboot:1,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Roberto Carlos",nation:"Brazil",clubs:["Inter Milan","Real Madrid","Fenerbahce"],ballondor:0,goldboot:0,worldcup:1,ucl:3,pos:"DF"},
+  {name:"Cafu",nation:"Brazil",clubs:["São Paulo","Juventus","Roma","AC Milan"],ballondor:0,goldboot:0,worldcup:2,ucl:1,pos:"DF"},
+  {name:"Luis Figo",nation:"Portugal",clubs:["Sporting CP","Barcelona","Real Madrid","Inter Milan"],ballondor:1,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Kaká",nation:"Brazil",clubs:["São Paulo","AC Milan","Real Madrid","Orlando City"],ballondor:1,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Andrés Iniesta",nation:"Spain",clubs:["Barcelona","Vissel Kobe"],ballondor:0,goldboot:0,worldcup:1,ucl:4,pos:"MF"},
+  {name:"Xavi Hernández",nation:"Spain",clubs:["Barcelona","Al-Sadd"],ballondor:0,goldboot:0,worldcup:1,ucl:4,pos:"MF"},
+  {name:"Sergio Ramos",nation:"Spain",clubs:["Sevilla","Real Madrid","PSG"],ballondor:0,goldboot:0,worldcup:1,ucl:4,pos:"DF"},
+  {name:"Iker Casillas",nation:"Spain",clubs:["Real Madrid","Porto"],ballondor:0,goldboot:0,worldcup:1,ucl:3,pos:"GK"},
+  {name:"Gianluigi Buffon",nation:"Italy",clubs:["Parma","Juventus","PSG"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"GK"},
+  {name:"Oliver Kahn",nation:"Germany",clubs:["Bayern Munich"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"GK"},
+  {name:"Peter Schmeichel",nation:"Denmark",clubs:["Manchester United","Sporting CP","Aston Villa","Manchester City"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"GK"},
+  {name:"Patrick Vieira",nation:"France",clubs:["Cannes","AC Milan","Arsenal","Juventus","Inter Milan","Manchester City"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"MF"},
+  {name:"Roy Keane",nation:"Ireland",clubs:["Nottingham Forest","Manchester United","Celtic"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Paul Scholes",nation:"England",clubs:["Manchester United"],ballondor:0,goldboot:0,worldcup:0,ucl:2,pos:"MF"},
+  {name:"Steven Gerrard",nation:"England",clubs:["Liverpool","LA Galaxy"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Frank Lampard",nation:"England",clubs:["West Ham","Chelsea","Manchester City","New York City"],ballondor:0,goldboot:1,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Neymar Jr",nation:"Brazil",clubs:["Santos","Barcelona","PSG","Al-Hilal"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Kylian Mbappé",nation:"France",clubs:["Monaco","PSG","Real Madrid"],ballondor:0,goldboot:1,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Erling Haaland",nation:"Norway",clubs:["Molde","RB Salzburg","Borussia Dortmund","Manchester City"],ballondor:0,goldboot:2,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Vinicius Jr",nation:"Brazil",clubs:["Flamengo","Real Madrid"],ballondor:1,goldboot:0,worldcup:0,ucl:2,pos:"FW"},
+  {name:"Mohamed Salah",nation:"Egypt",clubs:["Basel","Chelsea","Fiorentina","Roma","Liverpool"],ballondor:0,goldboot:4,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Robert Lewandowski",nation:"Poland",clubs:["Lech Poznan","Borussia Dortmund","Bayern Munich","Barcelona"],ballondor:0,goldboot:6,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Kevin De Bruyne",nation:"Belgium",clubs:["Genk","Chelsea","Werder Bremen","Wolfsburg","Manchester City"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Luka Modric",nation:"Croatia",clubs:["Dinamo Zagreb","Tottenham","Real Madrid"],ballondor:1,goldboot:0,worldcup:0,ucl:5,pos:"MF"},
+  {name:"Virgil van Dijk",nation:"Netherlands",clubs:["Groningen","Celtic","Southampton","Liverpool"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"DF"},
+  {name:"Sadio Mané",nation:"Senegal",clubs:["Metz","Red Bull Salzburg","Southampton","Liverpool","Bayern Munich","Al-Nassr"],ballondor:0,goldboot:1,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Antoine Griezmann",nation:"France",clubs:["Real Sociedad","Atletico Madrid","Barcelona"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Harry Kane",nation:"England",clubs:["Tottenham","Bayern Munich"],ballondor:0,goldboot:2,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Son Heung-min",nation:"South Korea",clubs:["Hamburg","Bayer Leverkusen","Tottenham"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Raheem Sterling",nation:"England",clubs:["Liverpool","Manchester City","Chelsea","Arsenal"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Trent Alexander-Arnold",nation:"England",clubs:["Liverpool"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"DF"},
+  {name:"Bernardo Silva",nation:"Portugal",clubs:["Benfica","Monaco","Manchester City"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Ruben Dias",nation:"Portugal",clubs:["Benfica","Manchester City"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"DF"},
+  {name:"Alisson Becker",nation:"Brazil",clubs:["Sport Club Internacional","Roma","Liverpool"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"GK"},
+  {name:"Manuel Neuer",nation:"Germany",clubs:["Schalke","Bayern Munich"],ballondor:0,goldboot:0,worldcup:1,ucl:2,pos:"GK"},
+  {name:"Thibaut Courtois",nation:"Belgium",clubs:["Genk","Chelsea","Atletico Madrid","Real Madrid"],ballondor:0,goldboot:0,worldcup:0,ucl:2,pos:"GK"},
+  {name:"Pedri",nation:"Spain",clubs:["Las Palmas","Barcelona"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Gavi",nation:"Spain",clubs:["Barcelona"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Jude Bellingham",nation:"England",clubs:["Birmingham","Borussia Dortmund","Real Madrid"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Rodri",nation:"Spain",clubs:["Villarreal","Atletico Madrid","Manchester City"],ballondor:1,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Bukayo Saka",nation:"England",clubs:["Arsenal"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Phil Foden",nation:"England",clubs:["Manchester City"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Karim Benzema",nation:"France",clubs:["Lyon","Real Madrid","Al-Ittihad"],ballondor:1,goldboot:1,worldcup:0,ucl:5,pos:"FW"},
+  {name:"Toni Kroos",nation:"Germany",clubs:["Bayern Munich","Bayer Leverkusen","Real Madrid"],ballondor:0,goldboot:0,worldcup:1,ucl:5,pos:"MF"},
+  {name:"Dani Alves",nation:"Brazil",clubs:["Bahia","Sevilla","Barcelona","Juventus","PSG","São Paulo"],ballondor:0,goldboot:0,worldcup:0,ucl:3,pos:"DF"},
+  {name:"Thiago Silva",nation:"Brazil",clubs:["Fluminense","AC Milan","PSG","Chelsea"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"DF"},
+  {name:"Marcelo",nation:"Brazil",clubs:["Fluminense","Real Madrid","Olympiacos"],ballondor:0,goldboot:0,worldcup:0,ucl:4,pos:"DF"},
+  {name:"Pepe",nation:"Portugal",clubs:["Porto","Real Madrid","Besiktas"],ballondor:0,goldboot:0,worldcup:0,ucl:3,pos:"DF"},
+  {name:"Raphaël Varane",nation:"France",clubs:["Lens","Real Madrid","Manchester United"],ballondor:0,goldboot:0,worldcup:1,ucl:4,pos:"DF"},
+  {name:"Thomas Müller",nation:"Germany",clubs:["Bayern Munich"],ballondor:0,goldboot:1,worldcup:1,ucl:2,pos:"FW"},
+  {name:"Bastian Schweinsteiger",nation:"Germany",clubs:["Bayern Munich","Manchester United","Chicago Fire"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Miroslav Klose",nation:"Germany",clubs:["Kaiserslautern","Werder Bremen","Bayern Munich","Lazio"],ballondor:0,goldboot:1,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Lothar Matthäus",nation:"Germany",clubs:["Borussia Mönchengladbach","Bayern Munich","Inter Milan"],ballondor:1,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Didier Drogba",nation:"Ivory Coast",clubs:["Le Mans","Guingamp","Marseille","Chelsea","Galatasaray"],ballondor:0,goldboot:4,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Wayne Rooney",nation:"England",clubs:["Everton","Manchester United","DC United","Derby County"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Fernando Torres",nation:"Spain",clubs:["Atletico Madrid","Liverpool","Chelsea","AC Milan"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"David Villa",nation:"Spain",clubs:["Zaragoza","Valencia","Barcelona","Atletico Madrid","New York City"],ballondor:0,goldboot:1,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Zlatan Ibrahimović",nation:"Sweden",clubs:["Malmö","Ajax","Juventus","Inter Milan","Barcelona","AC Milan","PSG","Manchester United","LA Galaxy"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Samuel Eto'o",nation:"Cameroon",clubs:["Real Madrid","Mallorca","Barcelona","Inter Milan","Chelsea"],ballondor:0,goldboot:3,worldcup:0,ucl:3,pos:"FW"},
+  {name:"Arjen Robben",nation:"Netherlands",clubs:["Groningen","PSV","Chelsea","Real Madrid","Bayern Munich"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Franck Ribéry",nation:"France",clubs:["Brest","Metz","Galatasaray","Marseille","Bayern Munich","Fiorentina"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Xabi Alonso",nation:"Spain",clubs:["Real Sociedad","Liverpool","Real Madrid","Bayern Munich"],ballondor:0,goldboot:0,worldcup:1,ucl:3,pos:"MF"},
+  {name:"Cesc Fàbregas",nation:"Spain",clubs:["Arsenal","Barcelona","Chelsea","Monaco"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Mesut Özil",nation:"Germany",clubs:["Schalke","Werder Bremen","Real Madrid","Arsenal","Fenerbahce"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Gareth Bale",nation:"Wales",clubs:["Southampton","Tottenham","Real Madrid","LAFC","Cardiff City"],ballondor:0,goldboot:0,worldcup:0,ucl:5,pos:"FW"},
+  {name:"Sergio Agüero",nation:"Argentina",clubs:["Independiente","Atletico Madrid","Manchester City","Barcelona"],ballondor:0,goldboot:1,worldcup:0,ucl:1,pos:"FW"},
+  {name:"David Beckham",nation:"England",clubs:["Manchester United","Real Madrid","LA Galaxy","AC Milan","PSG"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Ryan Giggs",nation:"Wales",clubs:["Manchester United"],ballondor:0,goldboot:0,worldcup:0,ucl:2,pos:"MF"},
+  {name:"Eric Cantona",nation:"France",clubs:["Auxerre","Marseille","Bordeaux","Montpellier","Leeds","Manchester United"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Alan Shearer",nation:"England",clubs:["Southampton","Blackburn Rovers","Newcastle United"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Ruud van Nistelrooy",nation:"Netherlands",clubs:["Den Bosch","Heerenveen","PSV","Manchester United","Real Madrid","Hamburg"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Andriy Shevchenko",nation:"Ukraine",clubs:["Dynamo Kyiv","AC Milan","Chelsea"],ballondor:1,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Raúl",nation:"Spain",clubs:["Real Madrid","Schalke","Al-Sadd"],ballondor:0,goldboot:1,worldcup:0,ucl:3,pos:"FW"},
+  {name:"Francesco Totti",nation:"Italy",clubs:["Roma"],ballondor:0,goldboot:1,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Andrea Pirlo",nation:"Italy",clubs:["Brescia","Inter Milan","AC Milan","Juventus","New York City"],ballondor:0,goldboot:0,worldcup:1,ucl:2,pos:"MF"},
+  {name:"Alessandro Del Piero",nation:"Italy",clubs:["Juventus","Sydney FC"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Clarence Seedorf",nation:"Netherlands",clubs:["Ajax","Sampdoria","Real Madrid","Inter Milan","AC Milan","Botafogo"],ballondor:0,goldboot:0,worldcup:0,ucl:4,pos:"MF"},
+  {name:"Pavel Nedved",nation:"Czech Republic",clubs:["Dukla Prague","Sparta Prague","Lazio","Juventus"],ballondor:1,goldboot:0,worldcup:0,ucl:0,pos:"MF"},
+  {name:"Henrik Larsson",nation:"Sweden",clubs:["Helsingborg","Feyenoord","Celtic","Barcelona","Manchester United"],ballondor:0,goldboot:2,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Ruud Gullit",nation:"Netherlands",clubs:["Feyenoord","PSV","AC Milan","Sampdoria","Chelsea"],ballondor:1,goldboot:0,worldcup:0,ucl:2,pos:"FW"},
+  {name:"Karl-Heinz Rummenigge",nation:"Germany",clubs:["Bayern Munich","Inter Milan","Servette"],ballondor:2,goldboot:0,worldcup:0,ucl:2,pos:"FW"},
+  {name:"Gary Lineker",nation:"England",clubs:["Leicester","Everton","Barcelona","Tottenham"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Kenny Dalglish",nation:"Scotland",clubs:["Celtic","Liverpool"],ballondor:0,goldboot:0,worldcup:0,ucl:3,pos:"FW"},
+  {name:"Kevin Keegan",nation:"England",clubs:["Scunthorpe","Liverpool","Hamburg","Southampton","Newcastle"],ballondor:2,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Bebeto",nation:"Brazil",clubs:["Vitoria","Flamengo","Vasco","Deportivo","Sevilla"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Romário",nation:"Brazil",clubs:["Vasco","PSV","Barcelona","Valencia","Flamengo"],ballondor:0,goldboot:1,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Garrincha",nation:"Brazil",clubs:["Botafogo","Corinthians"],ballondor:0,goldboot:0,worldcup:2,ucl:0,pos:"FW"},
+  {name:"Zico",nation:"Brazil",clubs:["Flamengo","Udinese","Kashima Antlers"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Socrates",nation:"Brazil",clubs:["Corinthians","Fiorentina","Santos"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"MF"},
+  {name:"Carlos Tevez",nation:"Argentina",clubs:["Boca Juniors","West Ham","Manchester United","Manchester City","Juventus"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Lamine Yamal",nation:"Spain",clubs:["Barcelona"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Jude Bellingham",nation:"England",clubs:["Birmingham","Borussia Dortmund","Real Madrid"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Federico Valverde",nation:"Uruguay",clubs:["Peñarol","Real Madrid"],ballondor:0,goldboot:0,worldcup:0,ucl:2,pos:"MF"},
+  {name:"Achraf Hakimi",nation:"Morocco",clubs:["Real Madrid","Borussia Dortmund","Inter Milan","PSG"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"DF"},
+  {name:"Ousmane Dembélé",nation:"France",clubs:["Rennes","Borussia Dortmund","Barcelona","PSG"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Kingsley Coman",nation:"France",clubs:["PSG","Juventus","Bayern Munich"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Paul Pogba",nation:"France",clubs:["Manchester United","Juventus"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"MF"},
+  {name:"Olivier Giroud",nation:"France",clubs:["Tours","Montpellier","Arsenal","Chelsea","AC Milan","LA Galaxy"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Bruno Fernandes",nation:"Portugal",clubs:["Novara","Udinese","Sampdoria","Sporting CP","Manchester United"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"MF"},
+  {name:"João Félix",nation:"Portugal",clubs:["Benfica","Atletico Madrid","Chelsea","Barcelona"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Lautaro Martínez",nation:"Argentina",clubs:["Racing Club","Inter Milan"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Julián Álvarez",nation:"Argentina",clubs:["River Plate","Manchester City","Atletico Madrid"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Ángel Di María",nation:"Argentina",clubs:["Rosario Central","Benfica","Real Madrid","Manchester United","PSG","Juventus","Fiorentina"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Luis Suárez",nation:"Uruguay",clubs:["Nacional","Groningen","Ajax","Liverpool","Barcelona","Atletico Madrid","Inter Miami"],ballondor:0,goldboot:1,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Edinson Cavani",nation:"Uruguay",clubs:["Danubio","Palermo","Napoli","PSG","Manchester United","Boca Juniors"],ballondor:0,goldboot:1,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Diego Forlán",nation:"Uruguay",clubs:["Independiente","Manchester United","Villarreal","Atletico Madrid","Inter Milan"],ballondor:0,goldboot:2,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Romelu Lukaku",nation:"Belgium",clubs:["Anderlecht","West Brom","Everton","Chelsea","Manchester United","Inter Milan","Roma","Napoli"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Eden Hazard",nation:"Belgium",clubs:["Lille","Chelsea","Real Madrid"],ballondor:0,goldboot:1,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Jan Vertonghen",nation:"Belgium",clubs:["Ajax","Tottenham","Benfica","Anderlecht"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"DF"},
+  {name:"Ciro Immobile",nation:"Italy",clubs:["Juventus","Torino","Borussia Dortmund","Sevilla","Lazio"],ballondor:0,goldboot:3,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Marco Verratti",nation:"Italy",clubs:["Pescara","PSG","Al-Arabi"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"MF"},
+  {name:"Nicolò Barella",nation:"Italy",clubs:["Cagliari","Inter Milan"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Gianluigi Donnarumma",nation:"Italy",clubs:["AC Milan","PSG"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"GK"},
+  {name:"Giorgio Chiellini",nation:"Italy",clubs:["Fiorentina","Juventus","LAFC"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"DF"},
+  {name:"Petr Cech",nation:"Czech Republic",clubs:["Sparta Prague","Rennes","Chelsea","Arsenal"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"GK"},
+  {name:"Hakan Çalhanoğlu",nation:"Turkey",clubs:["Karlsruhe","Hamburg","Bayer Leverkusen","AC Milan","Inter Milan"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Xherdan Shaqiri",nation:"Switzerland",clubs:["Basel","Bayern Munich","Inter Milan","Stoke","Liverpool","Lyon"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"FW"},
+  {name:"Darwin Núñez",nation:"Uruguay",clubs:["Peñarol","Almería","Benfica","Liverpool"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Frenkie de Jong",nation:"Netherlands",clubs:["Willem II","Ajax","Barcelona"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"MF"},
+  {name:"Memphis Depay",nation:"Netherlands",clubs:["PSV","Manchester United","Lyon","Barcelona","Atletico Madrid"],ballondor:0,goldboot:0,worldcup:0,ucl:0,pos:"FW"},
+  {name:"Park Ji-sung",nation:"South Korea",clubs:["Kyoto Purple Sanga","PSV","Manchester United","Queens Park Rangers"],ballondor:0,goldboot:0,worldcup:0,ucl:1,pos:"MF"},
+  {name:"Didier Deschamps",nation:"France",clubs:["Nantes","Marseille","Juventus","Chelsea","Valencia"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"MF"},
+  {name:"Marcel Desailly",nation:"France",clubs:["Nantes","Marseille","AC Milan","Chelsea"],ballondor:0,goldboot:0,worldcup:1,ucl:2,pos:"DF"},
+  {name:"Robert Pires",nation:"France",clubs:["Metz","Marseille","Arsenal","Villarreal","Aston Villa"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"FW"},
+  {name:"Lilian Thuram",nation:"France",clubs:["Monaco","Parma","Juventus","Barcelona"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"DF"},
+  {name:"Emmanuel Petit",nation:"France",clubs:["Monaco","Arsenal","Barcelona","Valencia","Chelsea"],ballondor:0,goldboot:0,worldcup:1,ucl:0,pos:"MF"},
+  {name:"David Trezeguet",nation:"France",clubs:["Monaco","Juventus","River Plate"],ballondor:0,goldboot:1,worldcup:1,ucl:1,pos:"FW"},
+  {name:"Fabien Barthez",nation:"France",clubs:["Toulouse","Marseille","Monaco","Manchester United","Nantes"],ballondor:0,goldboot:0,worldcup:1,ucl:1,pos:"GK"},
+  {name:"Thierry Henry",nation:"France",clubs:["Monaco","Juventus","Arsenal","Barcelona","New York Red Bulls"],ballondor:0,goldboot:2,worldcup:1,ucl:0,pos:"FW"},
+];
+
+// Arsenal players for random names
+const ARSENAL_NAMES=["Henry","Bergkamp","Vieira","Pires","Ljungberg","Adams","Seaman","Cole","Fabregas","Van Persie","Giroud","Özil","Saka","Martinelli","Saliba","Rice","Odegaard","Havertz","Zinchenko","White"];
+
+// ═══════════════════════════════════
+// CATEGORY TYPES ENGINE
+// ═══════════════════════════════════
+// ═══════════════════════════════════
+// LEAGUE → CLUBS MAPPING
+// This is how "derived" categories work in our system.
+// Instead of storing a custom function per category, we store a static
+// map of which clubs belong to which league. The match function
+// just checks if any of the player's clubs are in that league's set.
+// To add a new league: add one entry here. That's it.
+// ═══════════════════════════════════
+const LEAGUE_CLUBS={
+  'Premier League':new Set(['Arsenal','Chelsea','Liverpool','Manchester City','Manchester United','Tottenham','Everton','Newcastle','West Ham','Aston Villa','Leicester','Southampton','Wolverhampton','Brighton','Brentford','Fulham','Crystal Palace','Bournemouth','Nottingham Forest','Burnley','Leeds','Sheffield United','Watford','Norwich','Blackburn Rovers','Ipswich','Sunderland','Middlesbrough','Bolton','Wigan','Stoke','Swansea','Cardiff','Hull','Queens Park Rangers','Reading','Charlton','Birmingham','Derby','Portsmouth','West Brom','Coventry','Bradford','Oldham','Wimbledon','Barnsley','Blackpool','Huddersfield']),
+  'La Liga':new Set(['Barcelona','Real Madrid','Atletico Madrid','Valencia','Sevilla','Villarreal','Real Sociedad','Athletic Club','Real Betis','Celta Vigo','Deportivo','Málaga','Zaragoza','Osasuna','Getafe','Levante','Rayo Vallecano','Espanyol','Granada','Girona','Almería','Valladolid','Leganes','Elche','Cadiz','Mallorca']),
+  'Serie A':new Set(['Juventus','AC Milan','Inter Milan','Roma','Lazio','Napoli','Fiorentina','Atalanta','Torino','Parma','Bologna','Sampdoria','Udinese','Genoa','Cagliari','Brescia','Verona','Lecce','Sassuolo','Venezia','Como','Monza','Salernitana','Empoli','Spezia','Frosinone','Benevento','Crotone','Chievo','Reggina','Livorno','Siena','Piacenza','Ancona','Bari']),
+  'Bundesliga':new Set(['Bayern Munich','Borussia Dortmund','RB Leipzig','Bayer Leverkusen','Borussia Mönchengladbach','Wolfsburg','Eintracht Frankfurt','Schalke','Hamburger SV','Werder Bremen','Stuttgart','Hertha Berlin','Hoffenheim','Augsburg','Freiburg','Mainz','Cologne','Union Berlin','Kaiserslautern','Nuremberg','Hannover','Arminia Bielefeld','1860 Munich','Karlsruhe']),
+  'Ligue 1':new Set(['PSG','Marseille','Lyon','Monaco','Lille','Rennes','Nice','Strasbourg','Bordeaux','Saint-Étienne','Lens','Montpellier','Nantes','Toulouse','Reims','Brest','Auxerre','Lorient','Metz','Troyes','Angers','Guingamp','Nancy','Caen','Istres','Grenoble']),
+  'Champions League':new Set([]), // handled by ucl field — not a league dropdown
+  'Primeira Liga':new Set(['Benfica','Porto','Sporting CP','Braga','Guimarães','Marítimo','Rio Ave','Paços de Ferreira','Boavista','Nacional','Setúbal']),
+  'Eredivisie':new Set(['Ajax','PSV','Feyenoord','AZ','Twente','Utrecht','Groningen','Heerenveen','Vitesse','Willem II','Roda JC']),
+  'Super Lig':new Set(['Galatasaray','Fenerbahce','Besiktas','Trabzonspor','Bursaspor','Antalyaspor','Konyaspor','Istanbul Basaksehir']),
+};
+
+const CAT_TYPES={
+  nation:   {label:"Nationality",          needsValue:true,  group:'basic',   match:(p,v)=>p.nation.toLowerCase()===v.toLowerCase()},
+  club:     {label:"Played for Club",      needsValue:true,  group:'basic',   match:(p,v)=>p.clubs.some(c=>c.toLowerCase()===v.toLowerCase())},
+  league:   {label:"Played in League",     needsValue:true,  group:'derived', match:(p,v)=>{const s=LEAGUE_CLUBS[v];return s&&s.size>0?p.clubs.some(c=>s.has(c)):false;}},
+  ballondor:{label:"Won Ballon d'Or",      needsValue:false, group:'trophy',  match:(p)=>p.ballondor>0},
+  goldboot: {label:"Won Golden Boot",      needsValue:false, group:'trophy',  match:(p)=>p.goldboot>0},
+  worldcup: {label:"Won World Cup",        needsValue:false, group:'trophy',  match:(p)=>p.worldcup>0},
+  ucl:      {label:"Won Champions League", needsValue:false, group:'trophy',  match:(p)=>p.ucl>0},
+};
+
+// Minimum players a category must match to be considered active and usable in games
+const MIN_MATCHES_FOR_ACTIVE=5;
+
+// ═══════════════════════════════════
+// CATEGORY VISUALS
+// getCatVisual(cat) returns { iconHtml, label, sublabel }
+// iconHtml is either an emoji span or a colored club badge div.
+// ═══════════════════════════════════
+
+// Nationality → flag emoji
+const NATION_FLAGS={
+  'Algeria':'🇩🇿','Angola':'🇦🇴','Argentina':'🇦🇷','Australia':'🇦🇺','Austria':'🇦🇹',
+  'Belgium':'🇧🇪','Bolivia':'🇧🇴','Bosnia':'🇧🇦','Brazil':'🇧🇷','Bulgaria':'🇧🇬',
+  'Cameroon':'🇨🇲','Canada':'🇨🇦','Chile':'🇨🇱','China':'🇨🇳','Colombia':'🇨🇴',
+  'Costa Rica':'🇨🇷','Croatia':'🇭🇷','Czech Republic':'🇨🇿','Denmark':'🇩🇰',
+  'Ecuador':'🇪🇨','Egypt':'🇪🇬','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Finland':'🇫🇮','France':'🇫🇷',
+  'Gabon':'🇬🇦','Germany':'🇩🇪','Ghana':'🇬🇭','Greece':'🇬🇷','Holland':'🇳🇱',
+  'Honduras':'🇭🇳','Hungary':'🇭🇺','Iceland':'🇮🇸','India':'🇮🇳','Iran':'🇮🇷',
+  'Ireland':'🇮🇪','Israel':'🇮🇱','Italy':'🇮🇹','Ivory Coast':'🇨🇮','Jamaica':'🇯🇲',
+  'Japan':'🇯🇵','Liberia':'🇱🇷','Mali':'🇲🇱','Mexico':'🇲🇽','Morocco':'🇲🇦',
+  'Netherlands':'🇳🇱','Nigeria':'🇳🇬','Northern Ireland':'🇬🇧','Norway':'🇳🇴',
+  'Panama':'🇵🇦','Paraguay':'🇵🇾','Peru':'🇵🇪','Poland':'🇵🇱','Portugal':'🇵🇹',
+  'Romania':'🇷🇴','Russia':'🇷🇺','Senegal':'🇸🇳','Serbia':'🇷🇸','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Slovakia':'🇸🇰','Slovenia':'🇸🇮','South Africa':'🇿🇦','South Korea':'🇰🇷',
+  'Spain':'🇪🇸','Sweden':'🇸🇪','Switzerland':'🇨🇭','Togo':'🇹🇬','Turkey':'🇹🇷',
+  'Ukraine':'🇺🇦','United States':'🇺🇸','Uruguay':'🇺🇾','Venezuela':'🇻🇪','Wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  'Zambia':'🇿🇲','Zimbabwe':'🇿🇼',
+};
+
+// Club → { bg color, text color, abbreviation }
+// Using real club primary colors for the badge
+const CLUB_COLORS={
+  'Arsenal':          {bg:'#EF0107',tc:'#fff',ab:'AFC'},
+  'Chelsea':          {bg:'#034694',tc:'#fff',ab:'CFC'},
+  'Liverpool':        {bg:'#C8102E',tc:'#F6EB61',ab:'LFC'},
+  'Manchester United':{bg:'#DA291C',tc:'#FBE122',ab:'MU'},
+  'Manchester City':  {bg:'#6CABDD',tc:'#1C2C5B',ab:'MC'},
+  'Tottenham':        {bg:'#132257',tc:'#fff',ab:'THF'},
+  'Everton':          {bg:'#003399',tc:'#fff',ab:'EFC'},
+  'Newcastle':        {bg:'#241F20',tc:'#fff',ab:'NFC'},
+  'West Ham':         {bg:'#7A263A',tc:'#1BB1E7',ab:'WHU'},
+  'Aston Villa':      {bg:'#670E36',tc:'#95BFE5',ab:'AVF'},
+  'Leicester':        {bg:'#003090',tc:'#FDBE11',ab:'LCF'},
+  'Barcelona':        {bg:'#A50044',tc:'#004D98',ab:'FCB'},
+  'Real Madrid':      {bg:'#FEBE10',tc:'#fff',ab:'RMA'},
+  'Atletico Madrid':  {bg:'#CB3524',tc:'#fff',ab:'ATM'},
+  'Sevilla':          {bg:'#D71920',tc:'#fff',ab:'SFC'},
+  'Valencia':         {bg:'#FF7B00',tc:'#fff',ab:'VCF'},
+  'Villarreal':       {bg:'#FFD700',tc:'#009633',ab:'VCF'},
+  'Real Sociedad':    {bg:'#0067B1',tc:'#fff',ab:'RSO'},
+  'Juventus':         {bg:'#000000',tc:'#fff',ab:'JUV'},
+  'AC Milan':         {bg:'#FB090B',tc:'#000',ab:'ACM'},
+  'Inter Milan':      {bg:'#010E80',tc:'#fff',ab:'INT'},
+  'Roma':             {bg:'#8E1F2F',tc:'#FFD700',ab:'ASR'},
+  'Lazio':            {bg:'#87D8F7',tc:'#003366',ab:'LAZ'},
+  'Napoli':           {bg:'#12A0C3',tc:'#fff',ab:'NAP'},
+  'Fiorentina':       {bg:'#4B0082',tc:'#fff',ab:'ACF'},
+  'Parma':            {bg:'#FFD700',tc:'#003399',ab:'PAR'},
+  'Atalanta':         {bg:'#1E3A8A',tc:'#000',ab:'ATA'},
+  'Bayern Munich':    {bg:'#DC052D',tc:'#fff',ab:'FCB'},
+  'Borussia Dortmund':{bg:'#FDE100',tc:'#000',ab:'BVB'},
+  'RB Leipzig':       {bg:'#E8152B',tc:'#fff',ab:'RBL'},
+  'Bayer Leverkusen': {bg:'#E32221',tc:'#000',ab:'B04'},
+  'Schalke':          {bg:'#004D9D',tc:'#fff',ab:'S04'},
+  'Borussia Mönchengladbach':{bg:'#000',tc:'#fff',ab:'BMG'},
+  'Wolfsburg':        {bg:'#65B32E',tc:'#fff',ab:'VfL'},
+  'Hamburg':          {bg:'#001F5F',tc:'#fff',ab:'HSV'},
+  'Werder Bremen':    {bg:'#1D9053',tc:'#fff',ab:'SVW'},
+  'PSG':              {bg:'#004170',tc:'#DA291C',ab:'PSG'},
+  'Marseille':        {bg:'#00ADEF',tc:'#fff',ab:'OM'},
+  'Lyon':             {bg:'#003087',tc:'#fff',ab:'OL'},
+  'Monaco':           {bg:'#CE1126',tc:'#fff',ab:'ASM'},
+  'Lille':            {bg:'#EE1C25',tc:'#fff',ab:'LOS'},
+  'Ajax':             {bg:'#D2122E',tc:'#fff',ab:'AFC'},
+  'PSV':              {bg:'#ED1C24',tc:'#fff',ab:'PSV'},
+  'Feyenoord':        {bg:'#CC0000',tc:'#fff',ab:'FEY'},
+  'Porto':            {bg:'#003087',tc:'#FFD700',ab:'FCP'},
+  'Benfica':          {bg:'#CC0000',tc:'#fff',ab:'SLB'},
+  'Sporting CP':      {bg:'#006600',tc:'#FFD700',ab:'SCP'},
+  'Flamengo':         {bg:'#CC0000',tc:'#000',ab:'FLA'},
+  'Fluminense':       {bg:'#8B0000',tc:'#6DB33F',ab:'FLU'},
+  'Santos':           {bg:'#000',tc:'#fff',ab:'SAN'},
+  'Real Madrid':      {bg:'#FEBE10',tc:'#fff',ab:'RMA'},
+  'Galatasaray':      {bg:'#E82020',tc:'#F6A800',ab:'GSR'},
+  'Fenerbahce':       {bg:'#003399',tc:'#FFB300',ab:'FB'},
+  'Besiktas':         {bg:'#000',tc:'#fff',ab:'BJK'},
+  'Dinamo Zagreb':    {bg:'#004B9D',tc:'#fff',ab:'GNK'},
+  'Celtic':           {bg:'#169B62',tc:'#fff',ab:'CFC'},
+  'Rangers':          {bg:'#1B458F',tc:'#fff',ab:'RFC'},
+  'Al-Nassr':         {bg:'#FFCC00',tc:'#003087',ab:'ALN'},
+  'Al-Hilal':         {bg:'#007FFF',tc:'#fff',ab:'ALH'},
+  'Inter Miami':      {bg:'#F7B5CD',tc:'#231F20',ab:'IMC'},
+  'LA Galaxy':        {bg:'#00245D',tc:'#FFD700',ab:'LAG'},
+  'Boca Juniors':     {bg:'#1A3577',tc:'#FFD700',ab:'CABJ'},
+  'River Plate':      {bg:'#fff',tc:'#CC0000',ab:'CARP'},
+};
+
+// League → emoji icon
+const LEAGUE_ICONS={
+  'Premier League':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'La Liga':'🇪🇸',
+  'Serie A':'🇮🇹',
+  'Bundesliga':'🇩🇪',
+  'Ligue 1':'🇫🇷',
+  'Primeira Liga':'🇵🇹',
+  'Eredivisie':'🇳🇱',
+  'Super Lig':'🇹🇷',
+};
+
+// Trophy/award → emoji icon + display name
+const TROPHY_ICONS={
+  ballondor:{icon:'🏅',name:"Ballon d'Or"},
+  goldboot: {icon:'👟',name:'Golden Boot'},
+  worldcup: {icon:'🏆',name:'World Cup'},
+  ucl:      {icon:'⭐',name:'Champions League'},
+};
+
+function getCatVisual(cat){
+  const type=cat.type;
+  const val=cat.value||'';
+
+  if(type==='nation'){
+    const flag=NATION_FLAGS[val]||'🌍';
+    return {
+      iconHtml:`<span class="cell-icon">${flag}</span>`,
+      label:val,
+      sublabel:'Nationality'
+    };
+  }
+
+  if(type==='club'){
+    const colors=CLUB_COLORS[val];
+    if(colors){
+      // Colored badge with club abbreviation
+      const iconHtml=`<div class="cell-badge" style="background:${colors.bg};color:${colors.tc}">${colors.ab}</div>`;
+      return {iconHtml, label:val, sublabel:'Club'};
+    }
+    // Fallback for unknown clubs
+    const initials=val.split(' ').map(w=>w[0]||'').join('').slice(0,3).toUpperCase();
+    return {
+      iconHtml:`<div class="cell-badge" style="background:#1a3d1f;color:var(--green);border:1.5px solid var(--green)">${initials}</div>`,
+      label:val,sublabel:'Club'
+    };
+  }
+
+  if(type==='league'){
+    const icon=LEAGUE_ICONS[val]||'🏟️';
+    return {
+      iconHtml:`<span class="cell-icon">${icon}</span>`,
+      label:val,
+      sublabel:'League'
+    };
+  }
+
+  if(TROPHY_ICONS[type]){
+    const t=TROPHY_ICONS[type];
+    return {
+      iconHtml:`<span class="cell-icon">${t.icon}</span>`,
+      label:t.name,
+      sublabel:'Trophy / Award'
+    };
+  }
+
+  // Fallback
+  return {iconHtml:`<span class="cell-icon">⚽</span>`,label:cat.label,sublabel:''};
+}
+
+function playerMatchesCat(player,cat){
+  const def=CAT_TYPES[cat.type];
+  if(!def)return false;
+  return def.match(player,cat.value);
+}
+
+function playerFactBadges(p){
+  const f=[];
+  if(p.nation)f.push(p.nation);
+  if(p.worldcup>0)f.push("World Cup winner");
+  if(p.ucl>0)f.push("UCL x"+p.ucl);
+  if(p.ballondor>0)f.push("Ballon d'Or x"+p.ballondor);
+  if(p.goldboot>0)f.push("Golden Boot x"+p.goldboot);
+  if(p.clubs&&p.clubs.length)f.push("Clubs: "+p.clubs.slice(0,3).join(", ")+(p.clubs.length>3?"...":""));
+  return f;
+}
+
+// ═══════════════════════════════════
+// FIREBASE
+// ═══════════════════════════════════
+firebase.initializeApp({
+  apiKey:"AIzaSyC9Qg3stNxBvqZhTu0KfGZfiuIajjfzLX0",
+  authDomain:"football-bingo-b45ff.firebaseapp.com",
+  databaseURL:"https://football-bingo-b45ff-default-rtdb.firebaseio.com",
+  projectId:"football-bingo-b45ff",
+  storageBucket:"football-bingo-b45ff.firebasestorage.app",
+  messagingSenderId:"744704903143",
+  appId:"1:744704903143:web:10dfcfdb1e7492a0d4df42"
+});
+const db=firebase.database();
+
+// Global refs (managed by super admin)
+const globalRef=db.ref('global');
+const globalPoolRef=db.ref('global/pool');
+const globalCatsRef=db.ref('global/categories');
+const globalAdminRef=db.ref('global/adminPassword');
+
+// Per-room refs created dynamically
+function roomRef(code){return db.ref('rooms/'+code);}
+
+// ═══════════════════════════════════
+// LOCAL STATE
+// ═══════════════════════════════════
+let globalPool=[];       // all players from Firebase global/pool
+let globalCats=[];       // all categories from Firebase global/categories
+let adminPassword='admin123';
+let myName=null;         // current player's name
+let myRoomCode=null;     // current room code
+let amCreator=false;     // is this player the room creator?
+let roomData={};         // full room snapshot
+let roomListener=null;   // Firebase listener handle
+let appReady=false;
+
+// ═══════════════════════════════════
+// INIT — load global data, then show app
+// ═══════════════════════════════════
+Promise.all([
+  globalPoolRef.once('value'),
+  globalCatsRef.once('value'),
+  globalAdminRef.once('value')
+]).then(([pSnap,cSnap,aSnap])=>{
+  // If no global pool in Firebase yet, seed it with PLAYER_DB
+  if(pSnap.val()){
+    globalPool=Object.values(pSnap.val());
+  } else {
+    globalPool=[...PLAYER_DB];
+    globalPoolRef.set(PLAYER_DB.reduce((acc,p,i)=>{acc[i]=p;return acc},{}));
+  }
+  if(cSnap.val()) globalCats=Object.values(cSnap.val());
+  if(aSnap.val()) adminPassword=aSnap.val();
+  appReady=true;
+  document.getElementById('loading-overlay').classList.add('hidden');
+
+  // Restore session
+  const saved=sessionStorage.getItem('fb_bingo_session');
+  if(saved){
+    const s=JSON.parse(saved);
+    myName=s.name; myRoomCode=s.code; amCreator=s.creator||false;
+    // Verify room still exists and is active
+    roomRef(myRoomCode).once('value').then(snap=>{
+      const r=snap.val();
+      if(r&&(r.status==='active'||r.status==='lobby')){
+        attachRoomListener(myRoomCode);
+        if(r.status==='lobby') showPage('lobby');
+        else showPage('game');
+      } else {
+        sessionStorage.removeItem('fb_bingo_session');
+        showPage('home');
+      }
+    });
+  } else {
+    showPage('home');
+  }
+});
+
+// Listen to global pool updates (for admin edits to reflect live)
+globalPoolRef.on('value',snap=>{
+  if(snap.val()) globalPool=Object.values(snap.val());
+  if(appReady&&activePage()==='page-admin') renderGlobalPool();
+});
+globalCatsRef.on('value',snap=>{
+  if(snap.val()) globalCats=Object.values(snap.val());
+  else globalCats=[];
+  if(appReady&&activePage()==='page-admin') renderGlobalCats();
+});
+
+// ═══════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════
+function activePage(){return document.querySelector('.page.active')?.id}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if(id==='admin')renderAdminPage();
+  if(id==='lobby')renderLobby();
+  if(id==='game')renderGame();
+}
+function goHome(){
+  stopTimer();
+  if(roomListener&&myRoomCode){db.ref('rooms/'+myRoomCode).off('value',roomListener);}
+  sessionStorage.removeItem('fb_bingo_session');
+  myName=null;myRoomCode=null;amCreator=false;roomData={};
+  showPage('home');
+}
+let toastTimer;
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className='',2500);}
+function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ';let r='';for(let i=0;i<4;i++)r+=c[Math.floor(Math.random()*c.length)];return r;}
+function randomArsenalName(){return ARSENAL_NAMES[Math.floor(Math.random()*ARSENAL_NAMES.length)]+'_'+Math.floor(Math.random()*99+1);}
+function saveMySession(){sessionStorage.setItem('fb_bingo_session',JSON.stringify({name:myName,code:myRoomCode,creator:amCreator}));}
+
+// ═══════════════════════════════════
+// SECRET ADMIN (⚽ x5)
+// ═══════════════════════════════════
+let secretTaps=0,secretTimer=null;
+function secretAdminTap(){
+  secretTaps++;clearTimeout(secretTimer);
+  if(secretTaps>=5){secretTaps=0;showPage('admin-login');return;}
+  secretTimer=setTimeout(()=>secretTaps=0,2000);
+}
+
+// ── DIFFICULTY-BALANCED BOARD SELECTION ──
+// Picks `size` categories from `pool` ensuring:
+//   - at least 2 easy, 2 medium, 2 hard (if available)
+//   - remaining slots filled randomly from whatever is left
+// If a difficulty tier doesn't have enough categories, it gracefully
+// fills from other tiers rather than failing the game.
+function buildBalancedBoard(pool,size){
+  const easy=shuffleArray(pool.filter(c=>(c.difficulty||'medium')==='easy'));
+  const medium=shuffleArray(pool.filter(c=>(c.difficulty||'medium')==='medium'));
+  const hard=shuffleArray(pool.filter(c=>(c.difficulty||'medium')==='hard'));
+
+  const MIN_EACH=2;
+  const selected=new Set();
+  const result=[];
+
+  function take(arr,n){
+    let taken=0;
+    for(const c of arr){
+      if(taken>=n)break;
+      if(!selected.has(c.label)){selected.add(c.label);result.push(c);taken++;}
+    }
+  }
+
+  // Guaranteed slots: 2 of each difficulty
+  take(easy,MIN_EACH);
+  take(medium,MIN_EACH);
+  take(hard,MIN_EACH);
+
+  // Fill remaining with random picks from full pool
+  const remaining=shuffleArray(pool.filter(c=>!selected.has(c.label)));
+  take(remaining,size-result.length);
+
+  // If still short (very small pool), top up from pool regardless
+  if(result.length<size){
+    for(const c of shuffleArray(pool)){
+      if(result.length>=size)break;
+      if(!selected.has(c.label)){selected.add(c.label);result.push(c);}
+    }
+  }
+
+  return shuffleArray(result).slice(0,size);
+}
+
+// ═══════════════════════════════════
+// CREATE ROOM
+// ═══════════════════════════════════
+async function createRoom(){
+  let name=document.getElementById('create-name').value.trim();
+  if(!name) name=randomArsenalName();
+  const boardSize=parseInt(document.getElementById('create-size').value);
+  const timerSecs=parseInt(document.getElementById('create-timer').value)||0;
+
+  if(globalCats.length<boardSize){toast(`Need at least ${boardSize} categories in admin panel (have ${globalCats.length})`,'error');return;}
+
+  // Generate unique room code
+  let code=genCode();
+  const snap=await roomRef(code).once('value');
+  if(snap.val()) code=genCode();
+
+  myName=name; myRoomCode=code; amCreator=true;
+  saveMySession();
+
+  // Only use active categories (5+ matching players)
+  const activeCats=globalCats.filter(c=>countCatMatches(c.type,c.value||'')>=MIN_MATCHES_FOR_ACTIVE);
+  if(activeCats.length<boardSize){
+    toast(`Only ${activeCats.length} active categories (need ${boardSize}) — run ⚡ Generate All in admin first`,'error');
+    return;
+  }
+  // Build a difficulty-balanced board:
+  // At least 2 easy, 2 medium, 2 hard — fill remaining slots randomly
+  const gameCats=buildBalancedBoard(activeCats,boardSize);
+
+  const roomObj={
+    code,
+    createdBy:name,
+    boardSize,
+    timerSecs,
+    categories:gameCats,
+    status:'lobby',
+    players:{[name]:{joined:true,creator:true}}
+  };
+  await roomRef(code).set(roomObj);
+  attachRoomListener(code);
+  showPage('lobby');
+}
+
+// ═══════════════════════════════════
+// JOIN ROOM
+// ═══════════════════════════════════
+async function joinRoom(){
+  let name=document.getElementById('join-name').value.trim();
+  if(!name) name=randomArsenalName();
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  if(code.length!==4){toast('Enter a 4-letter room code','error');return;}
+
+  const snap=await roomRef(code).once('value');
+  const room=snap.val();
+  if(!room){toast('Room not found','error');return;}
+  if(room.status==='ended'){toast('This game has already ended','error');return;}
+  if(room.status==='active'){toast('Game already started — too late to join!','error');return;}
+
+  myName=name; myRoomCode=code; amCreator=false;
+  saveMySession();
+
+  await roomRef(code).child('players/'+name).set({joined:true,creator:false});
+  attachRoomListener(code);
+  showPage('lobby');
+}
+
+// ═══════════════════════════════════
+// ROOM LISTENER
+// Attaches a Firebase .on('value') listener to the room.
+// Every change — someone joins, game starts, game ends — triggers renderLobby or renderGame.
+// ═══════════════════════════════════
+function attachRoomListener(code){
+  if(roomListener) db.ref('rooms/'+code).off('value',roomListener);
+  roomListener=roomRef(code).on('value',snap=>{
+    roomData=snap.val()||{};
+    const p=activePage();
+    if(roomData.status==='lobby') { if(p==='page-lobby')renderLobby(); }
+    else if(roomData.status==='active') { if(p==='page-lobby'){showPage('game');}else if(p==='page-game')renderGame(); }
+    else if(roomData.status==='ended') { if(p==='page-game')renderGame(); }
+  });
+}
+
+// ═══════════════════════════════════
+// LOBBY
+// ═══════════════════════════════════
+function renderLobby(){
+  const room=roomData;
+  if(!room||!room.players)return;
+  document.getElementById('lobby-code').textContent=myRoomCode;
+  const players=Object.entries(room.players);
+  const listEl=document.getElementById('lobby-players');
+  listEl.innerHTML=players.map(([name,data])=>`
+    <div class="lobby-player">
+      <div class="lobby-player-avatar">${name[0].toUpperCase()}</div>
+      <div class="lobby-player-name">${name}</div>
+      <div class="lobby-player-badge">${data.creator?'<span class="badge badge-gold">Creator</span>':''}</div>
+    </div>`).join('');
+  const minMsg=document.getElementById('lobby-min-msg');
+  const startBtn=document.getElementById('lobby-start-btn');
+  const creatorControls=document.getElementById('lobby-creator-controls');
+  const waitMsg=document.getElementById('lobby-waiting-msg');
+  const canStart=players.length>=2;
+  minMsg.style.display=canStart?'none':'';
+  if(amCreator){
+    creatorControls.style.display='';
+    waitMsg.style.display='none';
+    startBtn.disabled=!canStart;
+  } else {
+    creatorControls.style.display='none';
+    waitMsg.style.display='';
+  }
+}
+
+// ═══════════════════════════════════
+// SMART POOL SELECTION
+// Goal: pick ~100 players from the global pool for this game.
+// Rules:
+//   - Each category must have at least 3 "good" players
+//   - Prefer players that are MORE unique to a category
+//     (i.e. match fewer other categories) for the guaranteed slots
+//   - Fill remaining slots up to 100 with random players (traps + extras)
+// ═══════════════════════════════════
+function buildGamePool(allPlayers, gameCats, targetSize=100, minPerCat=3){
+  const selected=new Set(); // player names already selected
+  const result=[];
+
+  // Step 1: For each category, find all matching players
+  // and sort them by "uniqueness" — fewest matches to other categories first
+  for(const cat of gameCats){
+    const matching=allPlayers.filter(p=>playerMatchesCat(p,cat));
+
+    // Score each player: how many OTHER game categories do they also match?
+    // Lower score = more unique to this category = preferred for guaranteed slot
+    const scored=matching.map(p=>({
+      player:p,
+      otherMatches:gameCats.filter(c=>c.label!==cat.label&&playerMatchesCat(p,c)).length
+    })).sort((a,b)=>a.otherMatches-b.otherMatches);
+
+    // Pick minPerCat players for this category, preferring unique ones
+    // But shuffle within each "tier" so it's not always the same players
+    let added=0;
+    // Group by otherMatches score, shuffle within each group
+    const tiers={};
+    scored.forEach(s=>{
+      if(!tiers[s.otherMatches])tiers[s.otherMatches]=[];
+      tiers[s.otherMatches].push(s.player);
+    });
+    for(const tier of Object.values(tiers)){
+      shuffleArray(tier); // randomize within same uniqueness score
+      for(const p of tier){
+        if(added>=minPerCat)break;
+        if(!selected.has(p.name)){
+          selected.add(p.name);
+          result.push(p);
+          added++;
+        }
+      }
+      if(added>=minPerCat)break;
+    }
+    // If we still don't have minPerCat (not enough unique players), fill from already-selected
+    // that match this category — they'll still appear for this category when scoring
+  }
+
+  // Step 2: Fill remaining slots up to targetSize with random players
+  // from the full pool — these become traps or extra valid players
+  const remaining=shuffleArray(allPlayers.filter(p=>!selected.has(p.name)));
+  for(const p of remaining){
+    if(result.length>=targetSize)break;
+    result.push(p);
+  }
+
+  // Step 3: Final shuffle so the order is random
+  return shuffleArray(result);
+}
+
+// ═══════════════════════════════════
+// START GAME (creator only)
+// ═══════════════════════════════════
+async function startGameFromLobby(){
+  const room=roomData;
+  const players=Object.keys(room.players||{});
+  if(players.length<2){toast('Need at least 2 players','error');return;}
+
+  const startBtn=document.getElementById('lobby-start-btn');
+  startBtn.disabled=true;
+  startBtn.textContent='Starting...';
+
+  // Fetch latest global pool from Firebase
+  const poolSnapshot=await globalPoolRef.once('value');
+  const allPlayers=poolSnapshot.val()?Object.values(poolSnapshot.val()):[...globalPool];
+  const gameCats=room.categories||[];
+
+  // Validate: each category needs at least 3 matching players in global pool
+  for(const cat of gameCats){
+    const matches=allPlayers.filter(p=>playerMatchesCat(p,cat));
+    if(matches.length<3){
+      toast(`"${cat.label}" has only ${matches.length} matching players (need 3+)`,'error');
+      startBtn.disabled=false;startBtn.textContent='▶ Start Game';
+      return;
+    }
+  }
+
+  // Build the smart game pool (~100 players, min 3 per category)
+  const gamePool=buildGamePool(allPlayers,gameCats,100,3);
+
+  // Give each player their own shuffled order through the pool
+  const updates={};
+  updates['status']='active';
+  updates['pool']=gamePool;
+  players.forEach(name=>{
+    const shuffled=shuffleArray(gamePool.map((_,i)=>i));
+    updates['sessions/'+name]={poolOrder:shuffled,poolIndex:0,skipped:0,placed:{}};
+  });
+  await roomRef(myRoomCode).update(updates);
+}
+
+// ═══════════════════════════════════
+// GAME RENDER
+// ═══════════════════════════════════
+function getMySession(){return roomData.sessions?roomData.sessions[myName]:null;}
+
+function currentPoolPlayer(){
+  const sess=getMySession();if(!sess)return null;
+  const pool=roomData.pool||[];
+  const order=sess.poolOrder||[];
+  for(let i=sess.poolIndex||0;i<order.length;i++){
+    const p=pool[order[i]];
+    if(p)return{player:p,globalIdx:order[i],poolPos:i};
+  }
+  return null;
+}
+
+function renderGame(){
+  const room=roomData;
+  const sess=getMySession();
+  if(!sess){showPage('join');return;}
+
+  document.getElementById('game-title-display').textContent='Room: '+myRoomCode;
+  document.getElementById('game-player-display').textContent='Player: '+myName;
+  // End & Score button removed — game ends automatically
+
+  const placed=sess.placed||{};
+  const filled=Object.keys(placed).length;
+  const pool=room.pool||[];
+  const poolIndex=sess.poolIndex||0;
+  const boardSize=room.boardSize||16;
+  const cats=room.categories||[];
+
+  document.getElementById('stat-pool').textContent=pool.length-poolIndex;
+  document.getElementById('stat-filled').textContent=filled;
+  document.getElementById('stat-total').textContent=boardSize;
+  document.getElementById('stat-skipped').textContent=sess.skipped||0;
+  document.getElementById('progress-fill').style.width=Math.round(filled/boardSize*100)+'%';
+
+  const cols=Math.ceil(Math.sqrt(boardSize));
+  document.getElementById('bingo-board').style.gridTemplateColumns=`repeat(${cols},1fr)`;
+
+  const boardFull=filled>=boardSize;
+  const noMorePlayers=!currentPoolPlayer();
+
+  if(room.status==='ended'){showResults();return;}
+
+  document.getElementById('game-over-msg').style.display=(boardFull||noMorePlayers)?'':'none';
+  document.getElementById('current-player-wrap').style.display=(!boardFull&&!noMorePlayers)?'':'none';
+  document.getElementById('game-results').style.display='none';
+
+  if(!boardFull&&!noMorePlayers){
+    const cur=currentPoolPlayer();
+    if(cur){
+      document.getElementById('reveal-name').textContent=cur.player.name;
+      // Name only — no meta or facts shown
+      startTimer(room.timerSecs||0);
+    }
+  } else {
+    stopTimer();
+  }
+  renderBoard(sess,cats,pool,room.status);
+}
+
+function renderBoard(sess,cats,pool,status){
+  const board=document.getElementById('bingo-board');board.innerHTML='';
+  const placed=sess.placed||{};
+  const hasCurrent=!!currentPoolPlayer();
+  const boardFull=Object.keys(placed).length>=(roomData.boardSize||16);
+
+  cats.forEach((cat,i)=>{
+    const cell=document.createElement('div');
+    const pp=placed[i];
+    const isPlaceable=hasCurrent&&!pp&&!boardFull&&status==='active';
+    const vis=getCatVisual(cat);
+
+    cell.className='bingo-cell'+(pp?' locked':'')+(isPlaceable?' placeable':'');
+
+    if(status==='ended'&&pp){
+      const player=pool.find(p=>p.name===pp);
+      const correct=player&&playerMatchesCat(player,cat);
+      cell.classList.add(correct?'correct':'wrong');
+      cell.innerHTML=`
+        ${vis.iconHtml}
+        <div class="cell-label">${vis.label}</div>
+        <div class="cell-player">${pp}</div>
+        <div class="cell-result-icon">${correct?'✅':'❌'}</div>`;
+    } else if(pp){
+      cell.innerHTML=`
+        ${vis.iconHtml}
+        <div class="cell-label">${vis.label}</div>
+        <div class="cell-player">🔒 ${pp}</div>`;
+    } else {
+      cell.innerHTML=`
+        ${vis.iconHtml}
+        <div class="cell-label">${vis.label}</div>
+        ${vis.sublabel?`<div class="cell-sublabel">${vis.sublabel}</div>`:''}
+        ${isPlaceable?'<div class="cell-empty-hint">tap to place</div>':''}`;
+    }
+
+    if(isPlaceable){
+      cell.onclick=()=>{
+        cell.classList.remove('placeable');
+        cell.classList.add('placed-flash');
+        placePlayerInCell(i);
+      };
+    }
+
+    board.appendChild(cell);
+  });
+}
+
+// ── DIRECT CELL PLACEMENT ──
+// Called when player taps an empty board cell.
+// No modal needed — click = immediate locked placement.
+function placePlayerInCell(catIdx){
+  const cur=currentPoolPlayer();if(!cur)return;
+  const sess=getMySession();if(!sess)return;
+  const placed={...(sess.placed||{})};
+  if(placed[catIdx]){toast('Already filled!','error');return;}
+  placed[catIdx]=cur.player.name;
+  stopTimer();
+  roomRef(myRoomCode).child('sessions/'+myName).update({
+    placed,
+    poolIndex:cur.poolPos+1,
+    done: isSessionDone({...sess,placed,poolIndex:cur.poolPos+1})
+  }).then(()=>checkAutoEnd());
+}
+
+function skipPlayer(){
+  const cur=currentPoolPlayer();if(!cur)return;
+  const sess=getMySession();if(!sess)return;
+  stopTimer();
+  const newIndex=cur.poolPos+1;
+  const newSkipped=(sess.skipped||0)+1;
+  roomRef(myRoomCode).child('sessions/'+myName).update({
+    poolIndex:newIndex,
+    skipped:newSkipped,
+    done: isSessionDone({...sess,poolIndex:newIndex})
+  }).then(()=>checkAutoEnd());
+}
+
+// A session is "done" when the pool is exhausted OR the board is full
+function isSessionDone(sess){
+  const pool=roomData.pool||[];
+  const boardSize=roomData.boardSize||16;
+  const poolExhausted=(sess.poolIndex||0)>=(sess.poolOrder||[]).length;
+  const boardFull=Object.keys(sess.placed||{}).length>=boardSize;
+  return poolExhausted||boardFull;
+}
+
+// Check if ALL players are done — if so, end the game automatically.
+// Any player's browser can trigger this. Writing 'ended' twice is harmless.
+function checkAutoEnd(){
+  const sessions=roomData.sessions||{};
+  if(!Object.keys(sessions).length)return;
+  const allDone=Object.values(sessions).every(s=>s.done===true);
+  if(allDone&&roomData.status==='active'){
+    roomRef(myRoomCode).update({status:'ended'});
+  }
+}
+
+// ═══════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════
+function showResults(){
+  stopTimer();
+  document.getElementById('current-player-wrap').style.display='none';
+  document.getElementById('game-over-msg').style.display='none';
+  document.getElementById('game-results').style.display='';
+  const sess=getMySession();
+  const placed=sess?.placed||{};
+  const cats=roomData.categories||[];
+  const pool=roomData.pool||[];
+  let correct=0,total=0;
+  cats.forEach((cat,i)=>{
+    const pName=placed[i];
+    if(pName){total++;const p=pool.find(p=>p.name===pName);if(p&&playerMatchesCat(p,cat))correct++;}
+  });
+  document.getElementById('your-score').textContent=correct;
+  document.getElementById('your-score-sub').textContent=`out of ${total} placed (${(roomData.boardSize||16)-total} empty)`;
+  const scores=computeScores();
+  document.getElementById('results-leaderboard').innerHTML=scores.map((s,i)=>`
+    <div class="leaderboard-row">
+      <div class="leaderboard-rank ${i===0?'gold':''}">${i+1}</div>
+      <div class="leaderboard-name">${s.name}${s.name===myName?' <span class="badge badge-green">you</span>':''}</div>
+      <div class="leaderboard-score">${s.correct}/${s.total}</div>
+    </div>`).join('');
+  if(sess) renderBoard(sess,cats,pool,'ended');
+}
+
+function computeScores(){
+  const sessions=roomData.sessions||{};
+  const cats=roomData.categories||[];
+  const pool=roomData.pool||[];
+  return Object.entries(sessions).map(([name,sess])=>{
+    let correct=0,total=0;
+    cats.forEach((cat,i)=>{
+      const pName=(sess.placed||{})[i];
+      if(pName){total++;const p=pool.find(p=>p.name===pName);if(p&&playerMatchesCat(p,cat))correct++;}
+    });
+    return{name,correct,total};
+  }).sort((a,b)=>b.correct-a.correct||b.total-a.total);
+}
+
+// ═══════════════════════════════════
+// TIMER
+// ═══════════════════════════════════
+let timerInterval=null;
+let timerSecsLeft=0;
+function startTimer(totalSecs){
+  clearInterval(timerInterval);
+  if(!totalSecs||totalSecs<=0){document.getElementById('timer-wrap').style.display='none';return;}
+  timerSecsLeft=totalSecs;
+  document.getElementById('timer-wrap').style.display='';
+  updateTimerUI(timerSecsLeft,totalSecs);
+  timerInterval=setInterval(()=>{
+    timerSecsLeft--;
+    updateTimerUI(timerSecsLeft,totalSecs);
+    if(timerSecsLeft<=0){clearInterval(timerInterval);skipPlayer();} // skipPlayer already calls checkAutoEnd
+  },1000);
+}
+function stopTimer(){clearInterval(timerInterval);document.getElementById('timer-wrap').style.display='none';}
+function updateTimerUI(secs,total){
+  const secsEl=document.getElementById('timer-secs');
+  const fillEl=document.getElementById('timer-fill');
+  const pct=Math.max(0,Math.round((secs/total)*100));
+  secsEl.textContent=Math.max(0,secs);
+  const color=secs>total*.5?'var(--green)':secs>total*.2?'var(--gold)':'var(--red)';
+  fillEl.style.width=pct+'%';fillEl.style.background=color;
+  secsEl.className='timer-secs'+(secs<=total*.2?' danger':secs<=total*.5?' warning':'');
+}
+
+// ═══════════════════════════════════
+// SUPER ADMIN
+// ═══════════════════════════════════
+function adminLogin(){
+  const pw=document.getElementById('admin-pw').value;
+  if(pw===adminPassword){showPage('admin');}
+  else toast('Wrong password','error');
+}
+
+function renderAdminPage(){
+  renderGlobalPool();
+  renderGlobalCats();
+  const pwEl=document.getElementById('admin-new-pw');
+  if(pwEl) pwEl.value=adminPassword;
+  // Initialize the smart category value control
+  updateCatValueControl();
+}
+
+function switchAdminTab(tab){
+  const tabs=['players','cats','settings'];
+  // Only target buttons inside the admin page tabs
+  document.querySelectorAll('#page-admin .tab-btn').forEach((b,i)=>b.classList.toggle('active',tabs[i]===tab));
+  // Only target admin tab panels (prefixed with atab-)
+  ['players','cats','settings'].forEach(t=>{
+    const el=document.getElementById('atab-'+t);
+    if(el) el.classList.toggle('active',t===tab);
+  });
+}
+
+// ── Global pool render ──
+function renderGlobalPool(){
+  const q=(document.getElementById('pool-search')?.value||'').toLowerCase();
+  const filtered=globalPool.filter(p=>
+    !q||p.name.toLowerCase().includes(q)||p.nation.toLowerCase().includes(q)||(p.clubs||[]).some(c=>c.toLowerCase().includes(q))
+  );
+  document.getElementById('global-pool-count').textContent=globalPool.length;
+  const list=document.getElementById('global-pool-list');
+  if(!filtered.length){list.innerHTML='<div style="padding:14px;color:var(--muted);font-size:13px">No players match</div>';return;}
+  list.innerHTML=filtered.map((p,i)=>`
+    <div class="db-list-item">
+      <div>
+        <div class="db-item-name">${p.name}</div>
+        <div class="db-item-meta">${p.nation} · ${p.pos||''}${p.ballondor>0?' · BD×'+p.ballondor:''}${p.worldcup>0?' · WC×'+p.worldcup:''}${p.ucl>0?' · UCL×'+p.ucl:''} · ${(p.clubs||[]).slice(0,3).join(', ')}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeFromGlobalPool('${p.name.replace(/'/g,"\\'")}')">Remove</button>
+    </div>`).join('');
+}
+
+function removeFromGlobalPool(name){
+  if(!confirm('Remove '+name+' from the global pool?'))return;
+  globalPool=globalPool.filter(p=>p.name!==name);
+  const obj=globalPool.reduce((acc,p,i)=>{acc[i]=p;return acc},{});
+  globalPoolRef.set(obj).then(()=>toast(name+' removed'));
+}
+
+// ── DB search (add from built-in list) ──
+function searchDB(q){
+  const res=document.getElementById('db-results');
+  if(!q||q.length<2){res.style.display='none';return;}
+  const ql=q.toLowerCase();
+  const matches=PLAYER_DB.filter(p=>
+    !globalPool.some(gp=>gp.name===p.name)&&
+    (p.name.toLowerCase().includes(ql)||p.nation.toLowerCase().includes(ql)||p.clubs.some(c=>c.toLowerCase().includes(ql)))
+  ).slice(0,12);
+  if(!matches.length){res.innerHTML='<div style="padding:12px;color:var(--muted);font-size:13px">No matches (or already in pool)</div>';res.style.display='block';return;}
+  res.innerHTML=matches.map(p=>`
+    <div class="db-result-item" onclick='addToGlobalPool(${JSON.stringify(p).replace(/'/g,"&#39;")})'>
+      <div class="db-result-name">${p.name}</div>
+      <div class="db-result-meta">${p.nation} · ${p.clubs.slice(0,3).join(', ')}${p.ballondor>0?' · BD×'+p.ballondor:''}${p.worldcup>0?' · WC winner':''}</div>
+    </div>`).join('');
+  res.style.display='block';
+}
+
+function addToGlobalPool(player){
+  if(globalPool.some(p=>p.name===player.name)){toast('Already in pool','error');return;}
+  globalPool.push(player);
+  const obj=globalPool.reduce((acc,p,i)=>{acc[i]=p;return acc},{});
+  globalPoolRef.set(obj).then(()=>toast(player.name+' added ✓'));
+  document.getElementById('db-search').value='';
+  document.getElementById('db-results').style.display='none';
+}
+
+function addCustomPlayer(){
+  const name=document.getElementById('custom-name').value.trim();
+  const nation=document.getElementById('custom-nation').value.trim();
+  const clubs=document.getElementById('custom-clubs').value.split(',').map(c=>c.trim()).filter(Boolean);
+  const pos=document.getElementById('custom-pos').value;
+  const ballondor=parseInt(document.getElementById('custom-bd').value)||0;
+  const goldboot=parseInt(document.getElementById('custom-gb').value)||0;
+  const worldcup=parseInt(document.getElementById('custom-wc').value)||0;
+  const ucl=parseInt(document.getElementById('custom-ucl').value)||0;
+  if(!name||!nation){toast('Name and nationality required','error');return;}
+  const player={name,nation,clubs,pos,ballondor,goldboot,worldcup,ucl};
+  globalPool.push(player);
+  const obj=globalPool.reduce((acc,p,i)=>{acc[i]=p;return acc},{});
+  globalPoolRef.set(obj).then(()=>{
+    toast(name+' added ✓');
+    ['custom-name','custom-nation','custom-clubs','custom-bd','custom-gb','custom-wc','custom-ucl'].forEach(id=>document.getElementById(id).value='');
+  });
+}
+
+// ── CLUB NAME NORMALIZATION MAP ──
+// Common abbreviations/variants → canonical name.
+// Add more entries here as you discover inconsistencies.
+const CLUB_ALIASES={
+  'man city':'Manchester City','man utd':'Manchester United','man united':'Manchester United',
+  'spurs':'Tottenham','tottenham hotspur':'Tottenham',
+  'psg':'PSG','paris saint-germain':'PSG','paris saint germain':'PSG',
+  'atletico':'Atletico Madrid','atlético madrid':'Atletico Madrid','atletico de madrid':'Atletico Madrid',
+  'barca':'Barcelona','fcb':'Barcelona',
+  'real':'Real Madrid','rm':'Real Madrid',
+  'juventus fc':'Juventus','juve':'Juventus',
+  'inter':'Inter Milan','internazionale':'Inter Milan','fc inter':'Inter Milan',
+  'ac milan':'AC Milan','milan':'AC Milan',
+  'ajax amsterdam':'Ajax','afc ajax':'Ajax',
+  'rb leipzig':'RB Leipzig',
+  'rb salzburg':'Red Bull Salzburg',
+  'borussia dortmund':'Borussia Dortmund','bvb':'Borussia Dortmund',
+  'b. dortmund':'Borussia Dortmund',
+  'borussia mönchengladbach':'Borussia Mönchengladbach','bmg':'Borussia Mönchengladbach',
+  'bayer leverkusen':'Bayer Leverkusen','leverkusen':'Bayer Leverkusen',
+  'liverpool fc':'Liverpool','lfc':'Liverpool',
+  'chelsea fc':'Chelsea','cfc':'Chelsea',
+  'arsenal fc':'Arsenal','afc':'Arsenal',
+  'newcastle united':'Newcastle','newcastle utd':'Newcastle',
+  'west ham united':'West Ham','west ham utd':'West Ham',
+  'manchester city fc':'Manchester City',
+  'manchester united fc':'Manchester United',
+  'porto fc':'Porto','fc porto':'Porto',
+  'benfica':'Benfica','sl benfica':'Benfica',
+  'sporting cp':'Sporting CP','sporting clube de portugal':'Sporting CP',
+  'lyon':'Lyon','olympique lyonnais':'Lyon',
+  'marseille':'Marseille','olympique de marseille':'Marseille',
+  'monaco':'Monaco','as monaco':'Monaco',
+  'sevilla fc':'Sevilla','sevilla cf':'Sevilla',
+  'valencia cf':'Valencia',
+  'villarreal cf':'Villarreal',
+  'real sociedad':'Real Sociedad',
+  'celtic fc':'Celtic',
+  'rangers fc':'Rangers',
+  'galatasaray sk':'Galatasaray',
+  'fenerbahçe':'Fenerbahce','fenerbahçe sk':'Fenerbahce',
+  'besiktas':'Besiktas','beşiktaş':'Besiktas',
+  'flamengo':'Flamengo','cr flamengo':'Flamengo',
+  'fluminense fc':'Fluminense',
+  'river plate':'River Plate','ca river plate':'River Plate',
+  'boca juniors':'Boca Juniors','ca boca juniors':'Boca Juniors',
+  'la galaxy':'LA Galaxy','los angeles galaxy':'LA Galaxy',
+  'inter miami cf':'Inter Miami','inter miami':'Inter Miami',
+  'al nassr':'Al-Nassr','al-nassr fc':'Al-Nassr',
+  'al hilal':'Al-Hilal','al-hilal fc':'Al-Hilal',
+};
+
+function normalizeClubName(raw){
+  const trimmed=raw.trim();
+  const lower=trimmed.toLowerCase();
+  return CLUB_ALIASES[lower]||trimmed; // return canonical or original if no alias found
+}
+
+function normalizePlayer(raw){
+  // Accepts both our format AND common alternatives
+  const name=(raw.name||'').trim();
+  const nation=(raw.nation||raw.nationality||'').trim();
+  let clubs=[];
+  if(Array.isArray(raw.clubs)) clubs=raw.clubs.map(c=>normalizeClubName(String(c)));
+  else if(typeof raw.clubs==='string') clubs=raw.clubs.split(',').map(c=>normalizeClubName(c.trim())).filter(Boolean);
+
+  return {
+    name,
+    nation: nation||'Unknown',
+    clubs,
+    pos: (raw.pos||raw.position||'FW').trim().toUpperCase(),
+    ballondor: parseInt(raw.ballondor??raw.wonBallonDor??0)||0,
+    goldboot:  parseInt(raw.goldboot??raw.wonGoldenBoot??0)||0,
+    worldcup:  parseInt(raw.worldcup??raw.wonWorldCup??0)||0,
+    ucl:       parseInt(raw.ucl??raw.wonUCL??raw.wonChampionsLeague??0)||0,
+  };
+}
+
+// Holds the parsed+normalised batch between preview and confirm
+let pendingImport=[];
+
+function clearBulkPreview(){
+  pendingImport=[];
+  document.getElementById('bulk-preview-wrap').style.display='none';
+  document.getElementById('bulk-confirm-btn').style.display='none';
+  document.getElementById('bulk-cancel-btn').style.display='none';
+}
+
+function previewBulkImport(){
+  const raw=document.getElementById('bulk-json').value.trim();
+  if(!raw){toast('Paste some JSON first','error');return;}
+
+  let parsed;
+  try{ parsed=JSON.parse(raw); }
+  catch(e){ toast('Invalid JSON — '+e.message,'error'); return; }
+  if(!Array.isArray(parsed)){toast('JSON must be an array [ ... ]','error');return;}
+
+  const existingNames=new Set(globalPool.map(p=>p.name.toLowerCase()));
+  pendingImport=[];
+
+  // Analyse every player
+  const results=parsed.map((item,idx)=>{
+    if(typeof item!=='object'||!item){
+      return{status:'err',issues:['Not a valid object'],raw:item,index:idx};
+    }
+    const p=normalizePlayer(item);
+    const issues=[];
+
+    if(!p.name) return{status:'err',player:p,issues:['Missing name'],index:idx};
+    if(existingNames.has(p.name.toLowerCase())) return{status:'skip',player:p,issues:['Duplicate — already in pool'],index:idx};
+    if(!p.nation||p.nation==='Unknown') issues.push('No nationality set');
+    if(!p.clubs.length) issues.push('No clubs listed');
+    if(!['FW','MF','DF','GK'].includes(p.pos)) issues.push(`Unknown position "${p.pos}" — defaulting to FW`);
+
+    const status=issues.length>0?'warn':'ok';
+    return{status,player:p,issues,index:idx};
+  });
+
+  // Only queue non-skip, non-err players for import
+  pendingImport=results.filter(r=>r.status==='ok'||r.status==='warn').map(r=>r.player);
+
+  // Build summary counts
+  const counts={ok:0,warn:0,skip:0,err:0};
+  results.forEach(r=>counts[r.status]++);
+
+  // Render summary bar
+  const summaryEl=document.getElementById('bulk-summary');
+  summaryEl.innerHTML=`
+    <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:.75rem">
+      <span style="font-weight:600;font-size:14px;margin-right:8px">Preview (${results.length} players)</span>
+      ${counts.ok?`<span class="badge badge-green">✓ ${counts.ok} ready</span>`:''}
+      ${counts.warn?`<span class="badge badge-gold">⚠ ${counts.warn} with warnings</span>`:''}
+      ${counts.skip?`<span class="badge badge-gray">⊘ ${counts.skip} duplicates</span>`:''}
+      ${counts.err?`<span class="badge badge-red">✕ ${counts.err} invalid</span>`:''}
+    </div>
+    ${pendingImport.length===0?'<div style="color:var(--red);font-size:13px">Nothing to import — all players are duplicates or invalid.</div>':''}`;
+
+  // Show first 10 players as cards, then a "and X more" line
+  const previewList=document.getElementById('bulk-preview-list');
+  const shown=results.slice(0,10);
+  const rest=results.length-shown.length;
+  previewList.innerHTML=shown.map(r=>{
+    const p=r.player;
+    const name=p?.name||'(no name)';
+    const meta=p?`${p.nation} · ${p.pos} · ${(p.clubs||[]).slice(0,3).join(', ')}${(p.clubs||[]).length>3?'...':''}`:JSON.stringify(r.raw);
+    const issueHtml=r.issues.length?`<div class="preview-issues">⚠ ${r.issues.join(' · ')}</div>`:'';
+    const errHtml=r.status==='err'?`<div class="preview-err">✕ ${r.issues.join(' · ')}</div>`:'';
+    return`<div class="preview-card ${r.status}">
+      <div class="preview-name">${name}</div>
+      <div class="preview-meta">${meta}</div>
+      ${issueHtml}${errHtml}
+    </div>`;
+  }).join('')+(rest>0?`<div style="font-size:13px;color:var(--muted);padding:8px 0">... and ${rest} more players</div>`:'');
+
+  document.getElementById('bulk-preview-wrap').style.display='';
+  document.getElementById('bulk-confirm-btn').style.display=pendingImport.length?'':'none';
+  document.getElementById('bulk-cancel-btn').style.display='';
+}
+
+function confirmBulkImport(){
+  if(!pendingImport.length){toast('Nothing to import','error');return;}
+  const btn=document.getElementById('bulk-confirm-btn');
+  btn.disabled=true; btn.textContent='Importing...';
+
+  // Merge into globalPool (pendingImport was already de-duped during preview)
+  const existingNames=new Set(globalPool.map(p=>p.name.toLowerCase()));
+  let added=0;
+  for(const p of pendingImport){
+    if(!existingNames.has(p.name.toLowerCase())){
+      globalPool.push(p);
+      existingNames.add(p.name.toLowerCase());
+      added++;
+    }
+  }
+
+  const obj=globalPool.reduce((acc,p,i)=>{acc[i]=p;return acc},{});
+  globalPoolRef.set(obj).then(()=>{
+    document.getElementById('bulk-json').value='';
+    clearBulkPreview();
+    btn.disabled=false; btn.textContent='✅ Confirm Import';
+    toast(`✓ Imported ${added} players! Running category generator...`);
+    renderGlobalPool();
+    // Auto-generate new categories from the updated pool
+    setTimeout(autoGenerateCategories, 500);
+  }).catch(e=>{
+    toast('Firebase write failed','error');
+    btn.disabled=false; btn.textContent='✅ Confirm Import';
+  });
+}
+
+// ── Global categories ──
+function renderGlobalCats(){
+  const list=document.getElementById('global-cat-list');
+  list.innerHTML='';
+
+  if(!globalCats.length){
+    list.innerHTML='<div style="font-size:13px;color:var(--muted)">No categories yet — add some above</div>';
+    document.getElementById('global-cat-count').textContent='0 active, 0 inactive';
+    return;
+  }
+
+  // Compute live match count for every category
+  const withCounts=globalCats.map((c,i)=>({...c,_i:i,_count:countCatMatches(c.type,c.value||'')}));
+  const active=withCounts.filter(c=>c._count>=MIN_MATCHES_FOR_ACTIVE);
+  const inactive=withCounts.filter(c=>c._count<MIN_MATCHES_FOR_ACTIVE);
+  document.getElementById('global-cat-count').textContent=`${active.length} active, ${inactive.length} inactive`;
+
+  function renderCatTag(c){
+    const isActive=c._count>=MIN_MATCHES_FOR_ACTIVE;
+    const diff=c.difficulty||'medium';
+    const diffColors={'easy':'#00C27A','medium':'#FFD700','hard':'#ff4455'};
+    const diffLabels={'easy':'Easy','medium':'Medium','hard':'Hard'};
+    const isOverride=c.difficultyOverride===true;
+
+    const tag=document.createElement('div');
+    tag.className='tag';
+    tag.style.cssText=`opacity:${isActive?1:0.5};border-color:${isActive?'var(--card-border)':'var(--red)'};gap:6px;align-items:center`;
+
+    tag.innerHTML=`
+      <span style="font-weight:500">${c.label}</span>
+      <span style="font-size:11px;color:${isActive?'var(--green)':'var(--red)'}">
+        ${c._count} players
+      </span>
+      <span style="font-size:11px;padding:1px 6px;border-radius:4px;background:${isActive?'#00c27a22':'#ff445522'};color:${isActive?'var(--green)':'var(--red)'}">
+        ${isActive?'✓ active':'✗ inactive'}
+      </span>
+      <button
+        title="${isOverride?'Manual override — click to cycle difficulty':'Auto difficulty — click to override'}"
+        onclick="cycleDifficulty(${c._i})"
+        style="background:none;border:1px solid ${diffColors[diff]};border-radius:4px;padding:1px 7px;cursor:pointer;font-size:11px;color:${diffColors[diff]};white-space:nowrap">
+        ${diffLabels[diff]}${isOverride?' ✎':''}
+      </button>
+      ${isOverride?`<button title="Reset to auto difficulty" onclick="resetDifficultyOverride(${c._i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0" >↺</button>`:''}
+      <button class="tag-remove" onclick="removeGlobalCat(${c._i})">×</button>`;
+    list.appendChild(tag);
+  }
+
+  // Active categories first
+  if(active.length){
+    const h=document.createElement('div');
+    h.style.cssText='width:100%;font-size:11px;color:var(--green);font-weight:600;padding:4px 0 6px;letter-spacing:.5px;text-transform:uppercase';
+    h.textContent=`✓ Active — used in games (${active.length})`;
+    list.appendChild(h);
+    active.forEach(renderCatTag);
+  }
+
+  // Inactive categories below a separator
+  if(inactive.length){
+    const sep=document.createElement('div');
+    sep.style.cssText='width:100%;font-size:11px;color:var(--red);font-weight:600;padding:8px 0 6px;letter-spacing:.5px;text-transform:uppercase;margin-top:8px';
+    sep.textContent=`✗ Inactive — fewer than ${MIN_MATCHES_FOR_ACTIVE} matching players (${inactive.length})`;
+    list.appendChild(sep);
+    inactive.forEach(renderCatTag);
+  }
+}
+
+function cycleDifficulty(i){
+  const cycle={easy:'medium',medium:'hard',hard:'easy'};
+  const current=globalCats[i].difficulty||'medium';
+  globalCats[i].difficulty=cycle[current];
+  const obj=globalCats.reduce((acc,c,idx)=>{acc[idx]=c;return acc},{});
+  globalCatsRef.set(obj).then(()=>{
+    renderGlobalCats();
+    toast(`Difficulty updated to ${globalCats[i].difficulty}`);
+  });
+}
+
+// ── AUTO DIFFICULTY ──
+// Calculates difficulty based on how many players match.
+// More matches = easier (more options to choose from = higher chance of guessing right).
+// This is only used when no manual override exists.
+function autoDifficulty(matchCount){
+  if(matchCount>=11) return 'easy';
+  if(matchCount>=7)  return 'medium';
+  return 'hard'; // 5–6
+}
+
+// ── AUTO-GENERATE CATEGORIES FROM PLAYER DATA ──
+// Scans the entire global pool and creates every valid category that:
+//   - has 5+ matching players
+//   - doesn't already exist
+// Covers: all nationalities, all clubs, all leagues, all trophy types
+async function autoGenerateCategories(){
+  const btn=document.getElementById('auto-gen-btn');
+  const resultEl=document.getElementById('auto-gen-result');
+  btn.disabled=true; btn.textContent='Generating...';
+  resultEl.style.display='none';
+
+  const existingLabels=new Set(globalCats.map(c=>c.label));
+  const newCats=[];
+
+  // ── Nationalities ──
+  const nationCounts={};
+  globalPool.forEach(p=>{if(p.nation)nationCounts[p.nation]=(nationCounts[p.nation]||0)+1;});
+  Object.entries(nationCounts).forEach(([nation,count])=>{
+    if(count<MIN_MATCHES_FOR_ACTIVE)return;
+    const label=`Nationality: ${nation}`;
+    if(existingLabels.has(label))return;
+    newCats.push({type:'nation',value:nation,label,difficulty:autoDifficulty(count),difficultyOverride:false,matches:count});
+    existingLabels.add(label);
+  });
+
+  // ── Clubs ──
+  const clubCounts={};
+  globalPool.forEach(p=>(p.clubs||[]).forEach(c=>{
+    const canonical=normalizeClubName(c);
+    clubCounts[canonical]=(clubCounts[canonical]||0)+1;
+  }));
+  Object.entries(clubCounts).forEach(([club,count])=>{
+    if(count<MIN_MATCHES_FOR_ACTIVE)return;
+    const label=`Played for Club: ${club}`;
+    if(existingLabels.has(label))return;
+    newCats.push({type:'club',value:club,label,difficulty:autoDifficulty(count),difficultyOverride:false,matches:count});
+    existingLabels.add(label);
+  });
+
+  // ── Leagues ──
+  Object.entries(LEAGUE_CLUBS).forEach(([league,clubSet])=>{
+    if(!clubSet.size)return;
+    const count=globalPool.filter(p=>p.clubs&&p.clubs.some(c=>clubSet.has(normalizeClubName(c)))).length;
+    if(count<MIN_MATCHES_FOR_ACTIVE)return;
+    const label=`Played in League: ${league}`;
+    if(existingLabels.has(label))return;
+    newCats.push({type:'league',value:league,label,difficulty:autoDifficulty(count),difficultyOverride:false,matches:count});
+    existingLabels.add(label);
+  });
+
+  // ── Trophy categories (single entry each) ──
+  const trophyTypes=[
+    {type:'ballondor',label:"Won Ballon d'Or"},
+    {type:'goldboot', label:'Won Golden Boot'},
+    {type:'worldcup', label:'Won World Cup'},
+    {type:'ucl',      label:'Won Champions League'},
+  ];
+  trophyTypes.forEach(({type,label})=>{
+    if(existingLabels.has(label))return;
+    const def=CAT_TYPES[type];
+    const count=globalPool.filter(p=>def.match(p,'')).length;
+    if(count<MIN_MATCHES_FOR_ACTIVE)return;
+    newCats.push({type,value:'',label,difficulty:autoDifficulty(count),difficultyOverride:false,matches:count});
+    existingLabels.add(label);
+  });
+
+  if(!newCats.length){
+    resultEl.textContent='No new categories to add — all valid ones already exist.';
+    resultEl.style.color='var(--muted)';
+    resultEl.style.display='';
+    btn.disabled=false; btn.textContent='⚡ Generate All';
+    return;
+  }
+
+  // Merge and save
+  const merged=[...globalCats,...newCats];
+  const obj=merged.reduce((acc,c,i)=>{acc[i]=c;return acc},{});
+  await globalCatsRef.set(obj);
+  resultEl.textContent=`✓ Added ${newCats.length} new categories (${newCats.filter(c=>c.difficulty==='easy').length} easy, ${newCats.filter(c=>c.difficulty==='medium').length} medium, ${newCats.filter(c=>c.difficulty==='hard').length} hard)`;
+  resultEl.style.color='var(--green)';
+  resultEl.style.display='';
+  btn.disabled=false; btn.textContent='⚡ Generate All';
+  toast(`Generated ${newCats.length} new categories!`);
+}
+
+// ── CATEGORY DIFFICULTY CYCLE (inline edit) ──
+function cycleDifficulty(i){
+  const cycle={easy:'medium',medium:'hard',hard:'easy'};
+  const current=globalCats[i].difficulty||'medium';
+  globalCats[i].difficulty=cycle[current];
+  globalCats[i].difficultyOverride=true; // mark as manually set
+  const obj=globalCats.reduce((acc,c,idx)=>{acc[idx]=c;return acc},{});
+  globalCatsRef.set(obj).then(()=>{
+    renderGlobalCats();
+    toast(`Difficulty → ${globalCats[i].difficulty} (manual override saved)`);
+  });
+}
+
+function resetDifficultyOverride(i){
+  const count=countCatMatches(globalCats[i].type,globalCats[i].value||'');
+  globalCats[i].difficulty=autoDifficulty(count);
+  globalCats[i].difficultyOverride=false;
+  const obj=globalCats.reduce((acc,c,idx)=>{acc[idx]=c;return acc},{});
+  globalCatsRef.set(obj).then(()=>{renderGlobalCats();toast('Reset to auto difficulty');});
+}
+// When the admin picks a category type, this function rebuilds the value
+// input dynamically:
+//   nation → searchable dropdown of all unique nationalities in the pool
+//   club   → searchable dropdown of all unique canonical club names in the pool
+//   boolean types (ballondor etc) → no value needed, show match count instead
+
+let _catValueOptions=[]; // full list for current type, used for filtering
+
+function updateCatValueControl(){
+  const type=document.getElementById('cat-type').value;
+  const wrap=document.getElementById('cat-value-wrap');
+  const selectEl=document.getElementById('cat-value-select');
+  const textEl=document.getElementById('cat-value-text');
+  const filteredEl=document.getElementById('cat-value-filtered');
+  const labelEl=document.getElementById('cat-value-label');
+  const previewEl=document.getElementById('cat-match-preview');
+
+  // Reset
+  selectEl.style.display='none';
+  textEl.style.display='none';
+  filteredEl.style.display='none';
+  previewEl.textContent='';
+  _catValueOptions=[];
+
+  if(type==='nation'){
+    // Build sorted unique nationality list from global pool
+    const nations=[...new Set(globalPool.map(p=>p.nation).filter(Boolean))].sort();
+    _catValueOptions=nations;
+    labelEl.textContent='Nationality';
+    wrap.style.display='';
+    textEl.placeholder='Type to search nationality...';
+    textEl.value='';
+    textEl.style.display='';
+    filteredEl.style.display='';
+    renderCatFilteredList(nations);
+  } else if(type==='club'){
+    // Build sorted unique canonical club list from global pool
+    // Run every club through normalizeClubName to ensure consistency
+    const clubSet=new Set();
+    globalPool.forEach(p=>(p.clubs||[]).forEach(c=>clubSet.add(normalizeClubName(c))));
+    const clubs=[...clubSet].sort();
+    _catValueOptions=clubs;
+    labelEl.textContent='Club';
+    wrap.style.display='';
+    textEl.placeholder='Type to search club...';
+    textEl.value='';
+    textEl.style.display='';
+    filteredEl.style.display='';
+    renderCatFilteredList(clubs);
+  } else if(type==='league'){
+    const leagues=Object.keys(LEAGUE_CLUBS).filter(l=>LEAGUE_CLUBS[l].size>0);
+    _catValueOptions=leagues;
+    labelEl.textContent='League';
+    wrap.style.display='';
+    textEl.placeholder='Select a league...';
+    textEl.value='';
+    textEl.style.display='';
+    filteredEl.style.display='';
+    renderCatFilteredList(leagues);
+  } else {
+    // Boolean type — no value needed
+    wrap.style.display='none';
+    // Show how many players in the pool match this type
+    const def=CAT_TYPES[type];
+    if(def){
+      const count=globalPool.filter(p=>def.match(p,'')>0||def.match(p,'')).length;
+      previewEl.textContent=`${count} players in your pool match this category`;
+    }
+  }
+}
+
+function renderCatFilteredList(items){
+  const el=document.getElementById('cat-value-filtered');
+  if(!items.length){el.innerHTML='<div style="padding:8px 12px;font-size:13px;color:var(--muted)">No matches</div>';return;}
+  el.innerHTML=items.slice(0,30).map(v=>`
+    <div onclick="selectCatValue('${v.replace(/'/g,"\\'")}','${v.replace(/'/g,"\\'")}')"
+      style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--card-border)"
+      onmouseover="this.style.background='var(--pitch-light)'"
+      onmouseout="this.style.background=''">
+      ${v}
+      <span style="float:right;font-size:11px;color:var(--green)">${countCatMatches(document.getElementById('cat-type').value,v)} players</span>
+    </div>`).join('');
+  if(items.length>30) el.innerHTML+=`<div style="padding:8px 12px;font-size:12px;color:var(--muted)">...${items.length-30} more — type to filter</div>`;
+}
+
+function filterCatValueSelect(q){
+  const filtered=_catValueOptions.filter(v=>v.toLowerCase().includes(q.toLowerCase()));
+  renderCatFilteredList(filtered);
+  // Also clear selected value if user is typing again
+  document.getElementById('cat-value-text').dataset.selected='';
+}
+
+function selectCatValue(display,value){
+  const textEl=document.getElementById('cat-value-text');
+  textEl.value=display;
+  textEl.dataset.selected=value;
+  // Show match count
+  const type=document.getElementById('cat-type').value;
+  const count=countCatMatches(type,value);
+  document.getElementById('cat-match-preview').textContent=`✓ "${display}" matches ${count} players in your pool`;
+  document.getElementById('cat-value-filtered').style.display='none';
+}
+
+function countCatMatches(type,value){
+  const def=CAT_TYPES[type];
+  if(!def)return 0;
+  return globalPool.filter(p=>def.match(p,value)).length;
+}
+
+// Keep old name working (called from onchange on cat-type select)
+function updateCatPreview(){ updateCatValueControl(); }
+
+function addCategory(){
+  const type=document.getElementById('cat-type').value;
+  const def=CAT_TYPES[type];
+  const diffSel=document.getElementById('cat-difficulty').value;
+  let value='';
+
+  if(def.needsValue){
+    const textEl=document.getElementById('cat-value-text');
+    value=(textEl.dataset.selected||textEl.value||'').trim();
+    if(type==='club') value=normalizeClubName(value);
+    if(!value){toast('Select a value from the list','error');return;}
+  }
+
+  const label=def.needsValue?def.label+': '+value:def.label;
+  if(globalCats.some(c=>c.label===label)){toast('Category already exists','error');return;}
+
+  const matchCount=countCatMatches(type,value);
+  if(matchCount<MIN_MATCHES_FOR_ACTIVE){
+    toast(`Only ${matchCount} players match — need at least ${MIN_MATCHES_FOR_ACTIVE}`,'error');
+    return;
+  }
+
+  // Difficulty: use manual pick if not 'auto', otherwise calculate automatically
+  const isOverride=diffSel!=='auto';
+  const difficulty=isOverride?diffSel:autoDifficulty(matchCount);
+
+  globalCats.push({type,value,label,difficulty,difficultyOverride:isOverride,matches:matchCount});
+  const obj=globalCats.reduce((acc,c,i)=>{acc[i]=c;return acc},{});
+  globalCatsRef.set(obj).then(()=>{
+    toast(`Added ✓ — ${matchCount} players match, difficulty: ${difficulty}${isOverride?' (manual)':' (auto)'}`);
+    document.getElementById('cat-value-text').value='';
+    document.getElementById('cat-value-text').dataset.selected='';
+    document.getElementById('cat-value-filtered').style.display='none';
+    document.getElementById('cat-match-preview').textContent='';
+  });
+}
+
+function removeGlobalCat(i){
+  globalCats.splice(i,1);
+  const obj=globalCats.reduce((acc,c,i)=>{acc[i]=c;return acc},{});
+  globalCatsRef.set(obj).then(()=>toast('Removed'));
+}
+
+function saveAdminConfig(){
+  const newPw=document.getElementById('admin-new-pw').value.trim();
+  if(newPw) adminPassword=newPw;
+  globalAdminRef.set(adminPassword).then(()=>toast('Saved!'));
+}
+
+// Close DB dropdown on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#db-search')&&!e.target.closest('#db-results')){
+    const r=document.getElementById('db-results');if(r)r.style.display='none';
+  }
+  // Also close cat value filtered list
+  if(!e.target.closest('#cat-value-text')&&!e.target.closest('#cat-value-filtered')){
+    const f=document.getElementById('cat-value-filtered');if(f)f.style.display='none';
+  }
+});
+
+updateCatPreview();
+</script>
+</body>
+</html>

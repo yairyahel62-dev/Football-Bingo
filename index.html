@@ -58,7 +58,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
 /* ── GAME PAGE: full-viewport no-scroll layout ── */
 #page-game{
   display:none;
-  height:calc(100vh - 56px); /* 56px = nav height */
+  height:calc(100vh - 56px);
   flex-direction:column;
   padding:0;
   overflow:hidden;
@@ -69,95 +69,71 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
   display:flex;
   flex-direction:column;
   height:100%;
-  padding:10px 12px 8px;
-  gap:6px;
-  max-width:900px;
+  padding:6px 10px 6px;
+  gap:4px;
+  max-width:960px;
   margin:0 auto;
   width:100%;
 }
 
-/* Top bar: room info + stats on one line */
+/* Top bar */
 .game-topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;flex-shrink:0;
 }
-.game-topbar-left{font-size:13px;color:var(--muted)}
-.game-topbar-left strong{color:var(--white);font-size:14px}
-.game-stats{display:flex;gap:10px;flex-shrink:0}
-.game-stat{font-size:12px;color:var(--muted);white-space:nowrap}
+.game-topbar-left{font-size:12px;color:var(--muted)}
+.game-topbar-left strong{color:var(--white);font-size:13px}
+.game-stats{display:flex;gap:8px;flex-shrink:0}
+.game-stat{font-size:11px;color:var(--muted);white-space:nowrap}
 .game-stat strong{color:var(--white)}
 
-/* Slim progress bar */
-.game-progress{height:3px;background:var(--card-border);border-radius:2px;flex-shrink:0;overflow:hidden}
+/* Progress bar */
+.game-progress{height:2px;background:var(--card-border);border-radius:2px;flex-shrink:0;overflow:hidden}
 .game-progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease}
 
-/* Timer — slim version */
+/* Timer */
 .game-timer{flex-shrink:0}
-.game-timer-bar{height:6px;background:var(--card-border);border-radius:3px;overflow:hidden}
+.game-timer-bar{height:5px;background:var(--card-border);border-radius:3px;overflow:hidden}
 .game-timer-fill{height:100%;border-radius:3px;transition:width 1s linear,background .5s}
-.game-timer-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.game-timer-secs{font-family:var(--font-display);font-size:20px;line-height:1}
+.game-timer-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.game-timer-secs{font-family:var(--font-display);font-size:18px;line-height:1}
 .game-timer-secs.warning{color:var(--gold)}.game-timer-secs.danger{color:var(--red)}
 
-/* Player strip — horizontal: name left, skip right */
+/* Player strip */
 .player-strip{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  background:var(--card-bg);
-  border:2px solid var(--green);
-  border-radius:12px;
-  padding:10px 16px;
-  flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--card-bg);border:2px solid var(--green);border-radius:10px;
+  padding:7px 14px;flex-shrink:0;
 }
 .player-strip-name{
-  font-family:var(--font-display);
-  font-size:clamp(22px,4vw,36px);
-  letter-spacing:2px;
-  color:var(--white);
-  line-height:1;
+  font-family:var(--font-display);font-size:clamp(20px,3.5vw,32px);
+  letter-spacing:2px;color:var(--white);line-height:1;
 }
-.player-strip-hint{font-size:11px;color:var(--muted);margin-top:2px}
 
 /* Board fills remaining space */
-.game-board-wrap{
-  flex:1;
-  min-height:0; /* crucial — lets flex child shrink below content size */
-  overflow:hidden;
-}
-.game-board{
-  display:grid;
-  gap:5px;
-  height:100%;
-  width:100%;
-}
-/* Each cell fills its grid area completely */
+.game-board-wrap{flex:1;min-height:0;overflow:hidden;}
+.game-board{display:grid;gap:4px;height:100%;width:100%;}
+
+/* Cell inside the game board — no fixed min-height, fills grid row */
 .game-board .bingo-cell{
-  min-height:0;
+  min-height:0 !important;
   height:100%;
-  padding:6px 4px;
+  padding:4px 3px;
 }
-.game-board .cell-icon{font-size:clamp(18px,3vw,28px);margin-bottom:1px}
+.game-board .cell-icon{font-size:clamp(16px,2.5vw,26px);margin-bottom:0}
 .game-board .cell-badge{
-  width:clamp(30px,4vw,42px);
-  height:clamp(30px,4vw,42px);
-  font-size:clamp(9px,1.2vw,13px);
-  border-radius:7px;
-  margin-bottom:1px;
+  width:clamp(26px,3.5vw,40px);height:clamp(26px,3.5vw,40px);
+  font-size:clamp(8px,1.1vw,12px);border-radius:6px;margin-bottom:0;
 }
-.game-board .cell-label{font-size:clamp(10px,1.3vw,13px);line-height:1.2}
-.game-board .cell-sublabel{font-size:clamp(8px,1vw,10px)}
-.game-board .cell-player{font-size:clamp(9px,1.1vw,11px)}
-.game-board .cell-empty-hint{font-size:clamp(8px,1vw,10px)}
+.game-board .cell-label{font-size:clamp(9px,1.2vw,12px);line-height:1.15}
+.game-board .cell-sublabel{font-size:clamp(7px,.9vw,9px)}
+.game-board .cell-player{font-size:clamp(8px,1vw,10px)}
+.game-board .cell-empty-hint{font-size:clamp(7px,.9vw,9px)}
 
 /* Base cell — icon-first centered design */
 .bingo-cell{
   background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;
-  padding:12px 8px 10px;min-height:110px;
+  padding:12px 8px 10px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:6px;cursor:pointer;transition:all .15s;position:relative;user-select:none;
   text-align:center;
@@ -419,6 +395,14 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
     </div>
     <div class="section-label">Leaderboard</div>
     <div class="leaderboard" id="results-leaderboard"></div>
+    <!-- Show board button -->
+    <button class="btn btn-secondary w-full" style="margin-top:1rem" onclick="toggleResultsBoard()">
+      📋 Show My Board
+    </button>
+    <div id="results-board-wrap" style="display:none;margin-top:1rem">
+      <div class="section-label">Your Answers</div>
+      <div class="game-board bingo-board" id="results-board" style="display:grid;gap:6px;min-height:300px"></div>
+    </div>
   </div>
 </div>
 
@@ -1397,12 +1381,14 @@ function renderGame(){
     const cur=currentPoolPlayer();
     if(cur){
       document.getElementById('reveal-name').textContent=cur.player.name;
-      // Name only — no meta or facts shown
-      startTimer(room.timerSecs||0);
     }
   } else {
-    stopTimer();
+    // Don't stop the timer here — it runs for the full game
   }
+
+  // Start (or keep running) the game-wide timer
+  if(room.status==='active') startGameTimer();
+
   renderBoard(sess,cats,pool,room.status);
 }
 
@@ -1463,7 +1449,6 @@ function placePlayerInCell(catIdx){
   const placed={...(sess.placed||{})};
   if(placed[catIdx]){toast('Already filled!','error');return;}
   placed[catIdx]=cur.player.name;
-  stopTimer();
   roomRef(myRoomCode).child('sessions/'+myName).update({
     placed,
     poolIndex:cur.poolPos+1,
@@ -1474,7 +1459,6 @@ function placePlayerInCell(catIdx){
 function skipPlayer(){
   const cur=currentPoolPlayer();if(!cur)return;
   const sess=getMySession();if(!sess)return;
-  stopTimer();
   const newIndex=cur.poolPos+1;
   const newSkipped=(sess.skipped||0)+1;
   roomRef(myRoomCode).child('sessions/'+myName).update({
@@ -1509,12 +1493,10 @@ function checkAutoEnd(){
 // ═══════════════════════════════════
 function showResults(){
   stopTimer();
-  // Hide the gameplay area, show the results panel
   const inner=document.querySelector('.game-inner');
   if(inner) inner.style.display='none';
-  document.getElementById('current-player-wrap').style.display='none';
-  document.getElementById('game-over-msg').style.display='none';
   document.getElementById('game-results').style.display='block';
+
   const sess=getMySession();
   const placed=sess?.placed||{};
   const cats=roomData.categories||[];
@@ -1525,7 +1507,8 @@ function showResults(){
     if(pName){total++;const p=pool.find(p=>p.name===pName);if(p&&playerMatchesCat(p,cat))correct++;}
   });
   document.getElementById('your-score').textContent=correct;
-  document.getElementById('your-score-sub').textContent=`out of ${total} placed (${(roomData.boardSize||16)-total} empty)`;
+  document.getElementById('your-score-sub').textContent=`${correct} correct out of ${total} placed`;
+
   const scores=computeScores();
   document.getElementById('results-leaderboard').innerHTML=scores.map((s,i)=>`
     <div class="leaderboard-row">
@@ -1533,7 +1516,51 @@ function showResults(){
       <div class="leaderboard-name">${s.name}${s.name===myName?' <span class="badge badge-green">you</span>':''}</div>
       <div class="leaderboard-score">${s.correct}/${s.total}</div>
     </div>`).join('');
-  if(sess) renderBoard(sess,cats,pool,'ended');
+
+  // Pre-render the board into the results board container (hidden until toggled)
+  if(sess) renderResultsBoard(sess,cats,pool);
+}
+
+function renderResultsBoard(sess,cats,pool){
+  const boardEl=document.getElementById('results-board');
+  const placed=sess.placed||{};
+  const cols=Math.ceil(Math.sqrt(cats.length));
+  const rows=Math.ceil(cats.length/cols);
+  boardEl.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  boardEl.style.gridTemplateRows=`repeat(${rows},minmax(80px,1fr))`;
+  boardEl.innerHTML='';
+
+  cats.forEach((cat,i)=>{
+    const cell=document.createElement('div');
+    const pp=placed[i];
+    const vis=getCatVisual(cat);
+    if(pp){
+      const player=pool.find(p=>p.name===pp);
+      const correct=player&&playerMatchesCat(player,cat);
+      cell.className='bingo-cell locked '+(correct?'correct':'wrong');
+      cell.innerHTML=`
+        ${vis.iconHtml}
+        <div class="cell-label">${vis.label}</div>
+        <div class="cell-player">${pp}</div>
+        <div class="cell-result-icon">${correct?'✅':'❌'}</div>`;
+    } else {
+      cell.className='bingo-cell';
+      cell.style.opacity='0.4';
+      cell.innerHTML=`
+        ${vis.iconHtml}
+        <div class="cell-label">${vis.label}</div>
+        <div class="cell-empty-hint">not filled</div>`;
+    }
+    boardEl.appendChild(cell);
+  });
+}
+
+function toggleResultsBoard(){
+  const wrap=document.getElementById('results-board-wrap');
+  const btn=event.target.closest('button');
+  const isHidden=wrap.style.display==='none';
+  wrap.style.display=isHidden?'block':'none';
+  btn.textContent=isHidden?'📋 Hide My Board':'📋 Show My Board';
 }
 
 function computeScores(){
@@ -1553,29 +1580,67 @@ function computeScores(){
 // ═══════════════════════════════════
 // TIMER
 // ═══════════════════════════════════
+// ═══════════════════════════════════
+// GAME-WIDE TIMER
+// The timer runs for the full game duration — it does NOT reset on
+// place or skip. It starts once when the game begins and ends the
+// game when it hits zero.
+// gameTimerTotal: the configured duration in seconds (0 = no timer)
+// gameTimerStart: timestamp (ms) when this game's timer started,
+//   stored in roomData.timerStartedAt so all players share the same clock.
+// ═══════════════════════════════════
 let timerInterval=null;
-let timerSecsLeft=0;
-function startTimer(totalSecs){
+
+function startGameTimer(){
   clearInterval(timerInterval);
-  if(!totalSecs||totalSecs<=0){document.getElementById('timer-wrap').style.display='none';return;}
-  timerSecsLeft=totalSecs;
+  const total=roomData.timerSecs||0;
+  if(!total){
+    document.getElementById('timer-wrap').style.display='none';
+    return;
+  }
+
+  // Use server-stored start time so all players see the same countdown
+  // even if they joined late or refreshed.
+  const startedAt=roomData.timerStartedAt||Date.now();
+
+  // If we're the one starting (creator just launched), write the start time once
+  if(!roomData.timerStartedAt&&amCreator){
+    roomRef(myRoomCode).update({timerStartedAt:Date.now()});
+  }
+
   document.getElementById('timer-wrap').style.display='';
-  updateTimerUI(timerSecsLeft,totalSecs);
-  timerInterval=setInterval(()=>{
-    timerSecsLeft--;
-    updateTimerUI(timerSecsLeft,totalSecs);
-    if(timerSecsLeft<=0){clearInterval(timerInterval);skipPlayer();} // skipPlayer already calls checkAutoEnd
-  },1000);
+
+  function tick(){
+    const elapsed=Math.floor((Date.now()-startedAt)/1000);
+    const remaining=Math.max(0,total-elapsed);
+    updateTimerUI(remaining,total);
+    if(remaining<=0){
+      clearInterval(timerInterval);
+      // End the game for everyone
+      if(roomData.status==='active'){
+        roomRef(myRoomCode).update({status:'ended'});
+      }
+    }
+  }
+  tick(); // immediate first tick
+  timerInterval=setInterval(tick,1000);
 }
-function stopTimer(){clearInterval(timerInterval);document.getElementById('timer-wrap').style.display='none';}
+
+function stopTimer(){
+  clearInterval(timerInterval);
+  const el=document.getElementById('timer-wrap');
+  if(el) el.style.display='none';
+}
+
 function updateTimerUI(secs,total){
   const secsEl=document.getElementById('timer-secs');
   const fillEl=document.getElementById('timer-fill');
   if(!secsEl||!fillEl)return;
+  secsEl.textContent=secs;
   const pct=Math.max(0,Math.round((secs/total)*100));
-  secsEl.textContent=Math.max(0,secs);
   const color=secs>total*.5?'var(--green)':secs>total*.2?'var(--gold)':'var(--red)';
-  fillEl.style.width=pct+'%';fillEl.style.background=color;
+  fillEl.style.width=pct+'%';
+  fillEl.style.background=color;
   secsEl.className='game-timer-secs'+(secs<=total*.2?' danger':secs<=total*.5?' warning':'');
 }
 

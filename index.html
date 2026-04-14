@@ -144,6 +144,18 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
 @keyframes pulse-cell{0%,100%{box-shadow:0 0 0 0 #00c27a33}50%{box-shadow:0 0 0 8px #00c27a00}}
 .bingo-cell.placed-flash{animation:flash-placed .4s ease}
 @keyframes flash-placed{0%{background:#00c27a44}100%{background:#00c27a0d}}
+/* Placement pop */
+@keyframes cell-place{0%{transform:scale(.82);opacity:.4}65%{transform:scale(1.07)}100%{transform:scale(1);opacity:1}}
+.bingo-cell.just-placed{animation:cell-place .32s cubic-bezier(.34,1.56,.64,1)}
+/* Correct pulse */
+@keyframes cell-correct-pulse{0%{box-shadow:0 0 0 0 #00c27a77}70%{box-shadow:0 0 0 12px #00c27a00}100%{box-shadow:0 0 0 0 #00c27a00}}
+.bingo-cell.correct{animation:cell-correct-pulse .7s ease}
+/* Wrong shake */
+@keyframes cell-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.bingo-cell.wrong{animation:cell-shake .4s ease}
+/* Results reveal — staggered */
+@keyframes cell-reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bingo-cell.reveal{animation:cell-reveal .3s ease both}
 .bingo-cell.locked{border-color:var(--green);background:#00c27a0d;cursor:default}
 .bingo-cell.correct{border-color:var(--green)!important;background:#00c27a22!important}
 .bingo-cell.wrong{border-color:var(--red)!important;background:#ff445511!important}
@@ -257,6 +269,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
   <div class="nav-logo" id="nav-logo" onclick="secretAdminTap()">⚽ BINGO</div>
   <div class="nav-links">
     <button class="nav-btn" onclick="goHome()">Home</button>
+    <button class="nav-btn" id="mute-btn" onclick="toggleMute()" title="Toggle sound">🔊</button>
   </div>
 </nav>
 
@@ -330,6 +343,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
       <div class="section-label">Players in Lobby</div>
       <div class="lobby-players" id="lobby-players"></div>
       <div id="lobby-min-msg" style="font-size:13px;color:var(--muted);margin-top:.5rem;display:none">Need at least 2 players to start</div>
+      <div id="lobby-mode-info" style="font-size:12px;color:var(--muted);margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--card-border)"></div>
     </div>
     <div id="lobby-creator-controls" style="display:none">
       <button class="btn btn-primary w-full" style="font-size:15px" id="lobby-start-btn" onclick="startGameFromLobby()">▶ Start Game</button>
@@ -1229,6 +1243,18 @@ function renderLobby(){
   const waitMsg=document.getElementById('lobby-waiting-msg');
   const canStart=players.length>=2;
   minMsg.style.display=canStart?'none':'';
+
+  // Show game mode summary so players know what to expect
+  const modeEl=document.getElementById('lobby-mode-info');
+  if(modeEl&&room.timerSecs!==undefined){
+    const s=getTimerGameSettings(room.timerSecs||0);
+    const timerLabel=room.timerSecs?room.timerSecs+'s timer':'No timer';
+    const reqLabel=s.reqMode==='random-1-2'?'1–2 correct needed per category':
+                   s.reqMode==='fixed-2'?'2 correct needed per category':
+                   '3 correct needed per category';
+    modeEl.innerHTML=`⏱ ${timerLabel} · 👥 ${s.poolSize} players in pool · 🎯 ${reqLabel}`;
+  }
+
   if(amCreator){
     creatorControls.style.display='';
     waitMsg.style.display='none';
@@ -1302,6 +1328,35 @@ function buildGamePool(allPlayers, gameCats, targetSize=100, minPerCat=3){
 }
 
 // ═══════════════════════════════════
+// TIMER → GAME SETTINGS MAP
+// Returns { poolSize, minPerCat, requiredMatchesMode }
+// requiredMatchesMode:
+//   'fixed-3' = all categories need 3 correct (no timer)
+//   'fixed-2' = all need 2 correct (90s)
+//   'random-1-2' = each category randomly needs 1 or 2 (60s)
+//   'fixed-3-80' = 80 players, standard 3 (120s)
+// ═══════════════════════════════════
+function getTimerGameSettings(timerSecs){
+  if(!timerSecs||timerSecs===0)  return {poolSize:100, minPerCat:3, reqMode:'fixed-3'};
+  if(timerSecs===120)            return {poolSize:80,  minPerCat:3, reqMode:'fixed-3'};
+  if(timerSecs===90)             return {poolSize:60,  minPerCat:2, reqMode:'fixed-2'};
+  if(timerSecs===60)             return {poolSize:40,  minPerCat:2, reqMode:'random-1-2'};
+  return {poolSize:100, minPerCat:3, reqMode:'fixed-3'};
+}
+
+// Assign requiredMatches to each category based on mode
+function assignRequiredMatches(cats, mode){
+  return cats.map(cat=>{
+    let req;
+    if(mode==='fixed-3')    req=3;
+    else if(mode==='fixed-2') req=2;
+    else if(mode==='random-1-2') req=Math.random()<0.5?1:2;
+    else req=3;
+    return {...cat, requiredMatches:req};
+  });
+}
+
+// ═══════════════════════════════════
 // START GAME (creator only)
 // ═══════════════════════════════════
 async function startGameFromLobby(){
@@ -1313,28 +1368,35 @@ async function startGameFromLobby(){
   startBtn.disabled=true;
   startBtn.textContent='Starting...';
 
+  // Determine pool size and difficulty based on timer
+  const settings=getTimerGameSettings(room.timerSecs||0);
+
   // Fetch latest global pool from Firebase
   const poolSnapshot=await globalPoolRef.once('value');
   const allPlayers=poolSnapshot.val()?Object.values(poolSnapshot.val()):[...globalPool];
-  const gameCats=room.categories||[];
+  const baseCats=room.categories||[];
 
-  // Validate: each category needs at least 3 matching players in global pool
-  for(const cat of gameCats){
+  // Validate: each category needs enough matching players
+  for(const cat of baseCats){
     const matches=allPlayers.filter(p=>playerMatchesCat(p,cat));
-    if(matches.length<3){
-      toast(`"${cat.label}" has only ${matches.length} matching players (need 3+)`,'error');
+    if(matches.length<settings.minPerCat){
+      toast(`"${cat.label}" has only ${matches.length} matching players (need ${settings.minPerCat}+)`,'error');
       startBtn.disabled=false;startBtn.textContent='▶ Start Game';
       return;
     }
   }
 
-  // Build the smart game pool (~100 players, min 3 per category)
-  const gamePool=buildGamePool(allPlayers,gameCats,100,3);
+  // Assign requiredMatches to each category
+  const gameCats=assignRequiredMatches(baseCats, settings.reqMode);
 
-  // Give each player their own shuffled order through the pool
+  // Build pool using timer-based pool size
+  const gamePool=buildGamePool(allPlayers, gameCats, settings.poolSize, settings.minPerCat);
+
   const updates={};
   updates['status']='active';
   updates['pool']=gamePool;
+  updates['categories']=gameCats; // overwrite with requiredMatches added
+  updates['timerStartedAt']=Date.now();
   players.forEach(name=>{
     const shuffled=shuffleArray(gamePool.map((_,i)=>i));
     updates['sessions/'+name]={poolOrder:shuffled,poolIndex:0,skipped:0,placed:{}};
@@ -1449,7 +1511,7 @@ function renderBoard(sess,cats,pool,status){
     if(isPlaceable){
       cell.onclick=()=>{
         cell.classList.remove('placeable');
-        cell.classList.add('placed-flash');
+        cell.classList.add('just-placed');
         placePlayerInCell(i);
       };
     }
@@ -1467,22 +1529,22 @@ function placePlayerInCell(catIdx){
   const placed={...(sess.placed||{})};
   if(placed[catIdx]){toast('Already filled!','error');return;}
   placed[catIdx]=cur.player.name;
+  SFX.place(); // sound
   roomRef(myRoomCode).child('sessions/'+myName).update({
     placed,
     poolIndex:cur.poolPos+1,
-    done: isSessionDone({...sess,placed,poolIndex:cur.poolPos+1})
   }).then(()=>checkAutoEnd());
 }
 
 function skipPlayer(){
   const cur=currentPoolPlayer();if(!cur)return;
   const sess=getMySession();if(!sess)return;
+  SFX.skip();
   const newIndex=cur.poolPos+1;
   const newSkipped=(sess.skipped||0)+1;
   roomRef(myRoomCode).child('sessions/'+myName).update({
     poolIndex:newIndex,
     skipped:newSkipped,
-    done: isSessionDone({...sess,poolIndex:newIndex})
   }).then(()=>checkAutoEnd());
 }
 
@@ -1529,6 +1591,7 @@ function checkAutoEnd(){
 // ═══════════════════════════════════
 function showResults(){
   stopTimer();
+  SFX.gameEnd();
   const inner=document.querySelector('.game-inner');
   if(inner) inner.style.display='none';
   document.getElementById('game-results').style.display='block';
@@ -1566,22 +1629,28 @@ function renderResultsBoard(sess,cats,pool){
   boardEl.style.gridTemplateRows=`repeat(${rows},minmax(80px,1fr))`;
   boardEl.innerHTML='';
 
+  let correctCount=0, wrongCount=0;
+
   cats.forEach((cat,i)=>{
     const cell=document.createElement('div');
     const pp=placed[i];
     const vis=getCatVisual(cat);
+
     if(pp){
       const player=pool.find(p=>p.name===pp);
       const correct=player&&playerMatchesCat(player,cat);
-      cell.className='bingo-cell locked '+(correct?'correct':'wrong');
+      cell.className='bingo-cell locked reveal '+(correct?'correct':'wrong');
+      // Stagger reveal animation
+      cell.style.animationDelay=(i*40)+'ms';
       cell.innerHTML=`
         ${vis.iconHtml}
         <div class="cell-label">${vis.label}</div>
         <div class="cell-player">${pp}</div>
         <div class="cell-result-icon">${correct?'✅':'❌'}</div>`;
+      if(correct) correctCount++; else wrongCount++;
     } else {
-      cell.className='bingo-cell';
-      cell.style.opacity='0.4';
+      cell.className='bingo-cell reveal';
+      cell.style.cssText+=`;opacity:0.35;animation-delay:${i*40}ms`;
       cell.innerHTML=`
         ${vis.iconHtml}
         <div class="cell-label">${vis.label}</div>
@@ -1589,6 +1658,12 @@ function renderResultsBoard(sess,cats,pool){
     }
     boardEl.appendChild(cell);
   });
+
+  // Play correct/wrong sounds after a short delay (after fanfare)
+  setTimeout(()=>{
+    if(correctCount>0) SFX.correct();
+  }, 800);
+  if(wrongCount>0) setTimeout(()=>SFX.wrong(), 1100);
 }
 
 function toggleResultsBoard(){
@@ -2336,6 +2411,51 @@ document.addEventListener('click',e=>{
 });
 
 updateCatPreview();
+
+// ═══════════════════════════════════
+// SOUND ENGINE (Web Audio API)
+// All sounds generated programmatically — no files, no HTTP requests.
+// AudioContext created on first user interaction (browser policy requirement).
+// ═══════════════════════════════════
+let audioCtx=null;
+let soundMuted=localStorage.getItem('fb_muted')==='true';
+
+function getAudioCtx(){
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+function toggleMute(){
+  soundMuted=!soundMuted;
+  localStorage.setItem('fb_muted',soundMuted);
+  document.getElementById('mute-btn').textContent=soundMuted?'🔇':'🔊';
+}
+function playTone(freq,type,duration,volume=0.25,delay=0){
+  if(soundMuted)return;
+  try{
+    const ctx=getAudioCtx();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type=type;
+    osc.frequency.setValueAtTime(freq,ctx.currentTime+delay);
+    gain.gain.setValueAtTime(volume,ctx.currentTime+delay);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+duration);
+    osc.start(ctx.currentTime+delay);
+    osc.stop(ctx.currentTime+delay+duration+0.05);
+  }catch(e){}
+}
+const SFX={
+  place()   { playTone(440,'sine',.1,.2); playTone(660,'sine',.08,.12,.08); },
+  correct() { [523,659,784].forEach((f,i)=>playTone(f,'sine',.18,.2,i*.1)); },
+  wrong()   { playTone(280,'sawtooth',.07,.15); playTone(180,'sawtooth',.12,.12,.08); },
+  gameEnd() { [523,659,784,1046].forEach((f,i)=>playTone(f,'sine',.28,.2,i*.12)); },
+  skip()    { playTone(330,'triangle',.07,.12); }
+};
+// Set initial mute button state
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.getElementById('mute-btn');
+  if(btn)btn.textContent=soundMuted?'🔇':'🔊';
+});
 </script>
 </body>
 </html>

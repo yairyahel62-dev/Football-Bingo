@@ -150,11 +150,13 @@ input:focus,textarea:focus,select:focus{border-color:var(--green)}
 
 /* Cell inner elements */
 .cell-icon{font-size:32px;line-height:1;margin-bottom:2px;display:block}
+/* cell-badge used by div fallback AND SVG shields */
 .cell-badge{
-  width:44px;height:44px;border-radius:10px;
   display:flex;align-items:center;justify-content:center;
   font-size:14px;font-weight:800;letter-spacing:-0.5px;
   margin-bottom:2px;flex-shrink:0;
+  /* width/height only applies to div badges, SVG uses viewBox */
+  width:44px;height:44px;border-radius:10px;
 }
 .cell-label{font-size:13px;font-weight:600;color:var(--white);line-height:1.3;max-width:100%}
 .cell-sublabel{font-size:10px;color:var(--muted);font-weight:400}
@@ -848,16 +850,16 @@ const CLUB_COLORS={
   'River Plate':      {bg:'#fff',tc:'#CC0000',ab:'CARP'},
 };
 
-// League → emoji icon
+// League → thematic cultural icon (not flags — more fun and distinctive)
 const LEAGUE_ICONS={
-  'Premier League':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-  'La Liga':'🇪🇸',
-  'Serie A':'🇮🇹',
-  'Bundesliga':'🇩🇪',
-  'Ligue 1':'🇫🇷',
-  'Primeira Liga':'🇵🇹',
-  'Eredivisie':'🇳🇱',
-  'Super Lig':'🇹🇷',
+  'Premier League': {icon:'🦁', sub:'England'},   // Three Lions
+  'La Liga':        {icon:'🐂', sub:'Spain'},       // Bull — iconic Spanish symbol
+  'Serie A':        {icon:'🥾', sub:'Italy'},       // Italy is boot-shaped
+  'Bundesliga':     {icon:'🦅', sub:'Germany'},     // Federal Eagle
+  'Ligue 1':        {icon:'🐓', sub:'France'},      // Gallic Rooster
+  'Primeira Liga':  {icon:'🐣', sub:'Portugal'},    // Portuguese rooster (different from French)
+  'Eredivisie':     {icon:'🌷', sub:'Netherlands'}, // Dutch tulip
+  'Super Lig':      {icon:'🌙', sub:'Turkey'},      // Turkish crescent
 };
 
 // Trophy/award → emoji icon + display name
@@ -867,6 +869,18 @@ const TROPHY_ICONS={
   worldcup: {icon:'🏆',name:'World Cup'},
   ucl:      {icon:'⭐',name:'Champions League'},
 };
+
+// Render a club as an SVG shield badge with club colors and abbreviation
+function clubShieldHtml(bg, tc, ab){
+  // Shield SVG path — classic heraldic shield shape
+  return `<svg class="cell-badge" viewBox="0 0 44 50" style="width:clamp(28px,3.8vw,44px);height:auto;flex-shrink:0;margin-bottom:0">
+    <path d="M22 2 L42 10 L42 28 C42 38 32 46 22 49 C12 46 2 38 2 28 L2 10 Z"
+      fill="${bg}" stroke="${tc}22" stroke-width="1.5"/>
+    <text x="22" y="32" text-anchor="middle" dominant-baseline="middle"
+      font-family="'DM Sans',sans-serif" font-weight="800"
+      font-size="${ab.length>3?'10':'12'}" fill="${tc}" letter-spacing="-0.5">${ab}</text>
+  </svg>`;
+}
 
 function getCatVisual(cat){
   const type=cat.type;
@@ -884,25 +898,30 @@ function getCatVisual(cat){
   if(type==='club'){
     const colors=CLUB_COLORS[val];
     if(colors){
-      // Colored badge with club abbreviation
-      const iconHtml=`<div class="cell-badge" style="background:${colors.bg};color:${colors.tc}">${colors.ab}</div>`;
-      return {iconHtml, label:val, sublabel:'Club'};
+      return {
+        iconHtml:clubShieldHtml(colors.bg,colors.tc,colors.ab),
+        label:val,
+        sublabel:'Club'
+      };
     }
-    // Fallback for unknown clubs
+    // Fallback shield for unknown clubs
     const initials=val.split(' ').map(w=>w[0]||'').join('').slice(0,3).toUpperCase();
     return {
-      iconHtml:`<div class="cell-badge" style="background:#1a3d1f;color:var(--green);border:1.5px solid var(--green)">${initials}</div>`,
+      iconHtml:clubShieldHtml('#1a3d1f','#00C27A',initials),
       label:val,sublabel:'Club'
     };
   }
 
   if(type==='league'){
-    const icon=LEAGUE_ICONS[val]||'🏟️';
-    return {
-      iconHtml:`<span class="cell-icon">${icon}</span>`,
-      label:val,
-      sublabel:'League'
-    };
+    const data=LEAGUE_ICONS[val];
+    if(data){
+      return {
+        iconHtml:`<span class="cell-icon">${data.icon}</span>`,
+        label:val,
+        sublabel:data.sub
+      };
+    }
+    return {iconHtml:`<span class="cell-icon">🏟️</span>`,label:val,sublabel:'League'};
   }
 
   if(TROPHY_ICONS[type]){
@@ -914,7 +933,6 @@ function getCatVisual(cat){
     };
   }
 
-  // Fallback
   return {iconHtml:`<span class="cell-icon">⚽</span>`,label:cat.label,sublabel:''};
 }
 
@@ -1477,13 +1495,31 @@ function isSessionDone(sess){
   return poolExhausted||boardFull;
 }
 
-// Check if ALL players are done — if so, end the game automatically.
-// Any player's browser can trigger this. Writing 'ended' twice is harmless.
+// ── GAME ENDING ──
+// The game ends immediately when ANY of these is true:
+//   1. Timer hits zero (handled in startGameTimer)
+//   2. Every player's board is full
+//   3. Every player's pool is exhausted
+// Conditions 2 & 3 are checked here after every place/skip.
+// Writing 'ended' multiple times is safe — Firebase ignores duplicates.
 function checkAutoEnd(){
   const sessions=roomData.sessions||{};
-  if(!Object.keys(sessions).length)return;
-  const allDone=Object.values(sessions).every(s=>s.done===true);
-  if(allDone&&roomData.status==='active'){
+  const playerNames=Object.keys(sessions);
+  if(!playerNames.length)return;
+  if(roomData.status!=='active')return;
+
+  const allBoardsFull=playerNames.every(name=>{
+    const s=sessions[name];
+    return Object.keys(s.placed||{}).length>=(roomData.boardSize||16);
+  });
+
+  const allPoolsExhausted=playerNames.every(name=>{
+    const s=sessions[name];
+    return (s.poolIndex||0)>=(s.poolOrder||[]).length;
+  });
+
+  // Either condition ends the game for everyone immediately
+  if(allBoardsFull||allPoolsExhausted){
     roomRef(myRoomCode).update({status:'ended'});
   }
 }
